@@ -36,6 +36,11 @@ const Nav = () => {
         <Button>MY Order</Button>
       </Link>
     </NavigationMenuItem>
+    <NavigationMenuItem >
+      <Link href="/sign-in">
+        <Button>Sign</Button>
+      </Link>
+    </NavigationMenuItem>
     </div>
 
   )
