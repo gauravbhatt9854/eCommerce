@@ -1,12 +1,11 @@
 "use client";
-import { SignUp} from "@clerk/nextjs";
+import { SignUp } from "@clerk/nextjs";
 
 const SignupPage = () => {
- 
-  return (
 
-    <SignUp></SignUp>
-  );
-};
+  return <div className="flex justify-center items-center h-screen">
+    <SignUp />
+  </div>
+}
 
 export default SignupPage;

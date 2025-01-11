@@ -22,6 +22,11 @@ const Nav = () => {
       <UserButton />
     </NavigationMenuItem>
     <NavigationMenuItem>
+      <Link href="/">
+        <Button>Home</Button>
+      </Link>
+    </NavigationMenuItem>
+    <NavigationMenuItem>
       <Link href="/components/products">
         <Button>Products</Button>
       </Link>

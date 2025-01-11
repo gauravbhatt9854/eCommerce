@@ -11,28 +11,46 @@ interface Product {
 const ProductsPage = () => {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
+  
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const res = await fetch('/api/products',{
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const data = await res.json();
-      setProducts(data);
+      try {
+        setIsLoading(true);
+        const res = await fetch('/api/products', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        if (!res.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        const data = await res.json();
+        setProducts(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
     };
-
+  
     fetchProducts();
   }, []);
-
   function descHandler(id: string) {
     const currentPath = window.location.pathname; // Get current path
     const newPath = `${currentPath}/${id}`; // Append `/id` to the current path
     router.push(newPath); // Navigate to the new path
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-2xl font-semibold">Loading...</p>
+      </div>
+    );
+  }
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-3xl font-bold text-center mb-8">Products</h1>
