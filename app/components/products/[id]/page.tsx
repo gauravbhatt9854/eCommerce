@@ -23,8 +23,9 @@ const Page = () => {
     const fetchProduct = async () => {
       try {
         const res = await fetch(`/api/products/${params?.id}`, {
-          method: "GET",
+          method: "POST",
           headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: params?.id }),
         });
 
         if (!res.ok) {
