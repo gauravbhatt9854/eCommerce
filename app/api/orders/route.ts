@@ -19,11 +19,11 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    console.log("given id2 ", userId_user?.id , typeof userId_user?.id);
-    console.log("given id ", userId , typeof userId);
-    console.log("given product id ", productId , typeof productId);
-    console.log("given price ", price , typeof price);
-    console.log("given razorpay_order_id ", razorpay_order_id , typeof razorpay_order_id);
+    // console.log("given id2 ", userId_user?.id , typeof userId_user?.id);
+    // console.log("given id ", userId , typeof userId);
+    // console.log("given product id ", productId , typeof productId);
+    // console.log("given price ", price , typeof price);
+    // console.log("given razorpay_order_id ", razorpay_order_id , typeof razorpay_order_id);
 
     const order = await prisma.order.create({
       data: {
