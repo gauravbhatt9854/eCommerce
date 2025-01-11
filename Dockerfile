@@ -7,10 +7,10 @@ WORKDIR /app
 # Step 3: Copy package.json and package-lock.json (if available)
 COPY package*.json ./
 
-# Step 4: Install dependencies
-RUN npm install
-RUN npm install @prisma/client
-RUN npx prisma generate
+# Step 4: Install dependencies and Prisma client
+RUN npm install && \
+    npm install @prisma/client && \
+    npx prisma generate
 
 # Step 5: Copy the rest of the app
 COPY . .
