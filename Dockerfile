@@ -4,10 +4,10 @@ FROM node:18-alpine
 # Step 2: Set working directory inside the container
 WORKDIR /app
 
+COPY . .
 # Step 3: Copy package.json and package-lock.json (if available)
 COPY package*.json ./
 
-COPY . .
 
 # Step 4: Install dependencies
 RUN npm install
