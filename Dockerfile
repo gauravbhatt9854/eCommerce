@@ -7,6 +7,8 @@ WORKDIR /app
 # Step 3: Copy package.json and package-lock.json (if available)
 COPY package*.json ./
 
+COPY . .
+
 # Step 4: Install dependencies
 RUN npm install
 RUN npm install prisma
@@ -14,7 +16,6 @@ RUN npx prisma db pull
 RUN npx prisma generate
 
 # Step 5: Copy the rest of the app
-COPY . .
 
 # Step 6: Build the Next.js app
 # RUN npm run build
