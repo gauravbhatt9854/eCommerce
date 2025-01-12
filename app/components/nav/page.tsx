@@ -12,15 +12,14 @@ import {
   import { UserButton, useUser } from '@clerk/nextjs'
   import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useEffect , useState } from "react"
 
   
 
 const Nav = () => {
   return (
-    <div  className="flex justify-between border-2 border-red-600 p-4">
-    <NavigationMenuItem>
+    <div  className="flex justify-between -600 py-4 px-10">
       <UserButton />
-    </NavigationMenuItem>
     <NavigationMenuItem>
       <Link href="/">
         <Button>Home</Button>
@@ -28,22 +27,12 @@ const Nav = () => {
     </NavigationMenuItem>
     <NavigationMenuItem>
       <Link href="/components/products">
-        <Button>Products</Button>
-      </Link>
-    </NavigationMenuItem>
-    <NavigationMenuItem>
-      <Link href="/admin/product">
-        <Button>Add Product</Button>
+        <Button>Store</Button>
       </Link>
     </NavigationMenuItem>
     <NavigationMenuItem>
       <Link href="/components/myOrders">
-        <Button>MY Order</Button>
-      </Link>
-    </NavigationMenuItem>
-    <NavigationMenuItem >
-      <Link href="/sign-in">
-        <Button>Sign</Button>
+        <Button>My Orders</Button>
       </Link>
     </NavigationMenuItem>
     </div>

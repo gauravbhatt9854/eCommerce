@@ -1,59 +1,14 @@
 import { Webhook } from 'svix';
 import { headers } from 'next/headers';
 import { auth, UserJSON, WebhookEvent } from '@clerk/nextjs/server';
-import nodemailer from 'nodemailer';
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { sendMail } from '@/app/services/rotue';
 
 export async function POST(req: Request) {
 
-  const auth_ = nodemailer.createTransport({
-    service: 'gmail',
-    secure: true,
-    port: 465,
-    auth: {
-      user: process.env.EMAIL,
-      pass: process.env.PASSWORD,
-    },
-  });
-
-
-  async function sendMail(subject: string, text: string, data: WebhookEvent['data']) {
-    let customer = (data as UserJSON).email_addresses[0].email_address;
-
-    if (!customer || !subject || !text) {
-      return NextResponse.json({ message: 'missing values' });
-    }
-    if (customer === process.env.EMAIL) {
-      console.log('Welcome Admin');
-      return NextResponse.json({ message: 'Welcome Admin' });
-    }
-    if (customer === 'example@example.org') {
-      console.log('Welcome Clerk');
-      customer = process.env.T_EMAIL as string;
-      subject = 'TEMP SUBJECT';
-      text = 'TEMP TEXT JUST FOR TESTING PURPOSE';
-    }
-
-    const receiver = {
-      from: process.env.EMAIL,
-      to: customer,
-      subject,
-      text,
-    };
-
-    try {
-      const ans = await auth_.sendMail(receiver);
-      if (ans) {
-        return NextResponse.json({ message: 'Email sent successfully' });
-      }
-    } catch (error) {
-      console.error('Error while sending email:', error);
-      return NextResponse.json({ message: 'Email not sent' });
-    }
-  }
-
   const SIGNING_SECRET = process.env.SIGNING_SECRET;
+  
 
   if (!SIGNING_SECRET) {
     throw new Error(
@@ -94,18 +49,23 @@ export async function POST(req: Request) {
 
   const eventType = evt.type;
   const { data } = evt;
-
-  let text: string = `Thank you for registering with us. 
-  We are excited to have you on board. 
-  Please let us know if you have any queries. 
-  We are here to help you. Have a great day ahead
-  
-  Gaurav Bhatt`;
-  let subject: string = 'Welcome to the family';
-  const newData = data as UserJSON;
+  // user created
 
   if (eventType === 'user.created') {
-    const val = await sendMail(subject, text, data);
+
+    let text: string = `Thank you for registering with us. 
+    We are excited to have you on board. 
+    Please let us know if you have any queries. 
+    We are here to help you. Have a great day ahead
+    
+    Gaurav Bhatt`;
+
+    let subject: string = 'Welcome to the family';
+    
+    const newData = data as UserJSON;
+  
+    type Val = { message: string} | undefined;
+
     const dataOfUser =
     {
       id: newData?.id,
@@ -135,7 +95,45 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "User creation failed", isOk: false }, { status: 400 })
     }
 
+    const val:Val = await sendMail(subject, text, data);
+    if(val?.message !== 'Email sent') return NextResponse.json({ message: 'Email not sent', isOk: false }, { status: 400 });
+
+  } 
+
+
+  // use deleted
+
+  if (eventType === 'user.deleted') {
+    let clerkId: string | undefined = data?.id;
+  
+    if (typeof clerkId !== 'string' || !clerkId) {
+        clerkId ="1";
+    }
+  
+    try {
+      // Delete all orders associated with the user
+      await prisma.order.deleteMany({
+        where: {
+          clerkId: clerkId,
+        },
+      });
+  
+      // Delete the user account
+      await prisma.user.deleteMany({
+        where: {
+          clerkId: clerkId,
+        },
+      });
+  
+      console.log(`Deleted user and orders for clerkId: ${clerkId}`);
+    } catch (error) {
+      console.error('Error deleting user and associated orders:', error);
+      return new Response('Error: Failed to delete user and associated orders', {
+        status: 500,
+      });
+    }
   }
+  
 
   return NextResponse.json('Webhook received', { status: 200 });
 }

@@ -3,22 +3,24 @@ import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-try {
+    try {
         const { userId } = await auth();
-    
+
         // Retrieve all orders where clerkId equals the userId
         const orders = await prisma.order.findMany({
-            where: {
-                clerkId: userId! // ensures that if userId is null/undefined, an empty string is used
-            },
+            where: {clerkId: userId!},
+            include: {
+                product: true,
+              },
         });
-    
+
+
         console.log(orders);
-        if(orders) {
+        if (orders) {
             return NextResponse.json(orders, { status: 200 });
         }
-} catch (error) {
-    console.error(error);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
-}
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    }
 }

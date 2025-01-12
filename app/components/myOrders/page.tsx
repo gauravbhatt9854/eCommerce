@@ -1,5 +1,5 @@
-"use client"
-import React, { useEffect, useState } from 'react';
+"use client";
+import React, { useEffect, useState } from "react";
 
 const MyOrdersPage = () => {
   const [orders, setOrders] = useState([]);
@@ -7,12 +7,11 @@ const MyOrdersPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch orders from the backend API
     const fetchOrders = async () => {
       try {
-        const response = await fetch('/api/orders/myOrders'); // Replace with your actual API endpoint
+        const response = await fetch("/api/orders/myOrders"); // Replace with your actual API endpoint
         if (!response.ok) {
-          throw new Error('Failed to fetch orders');
+          throw new Error("Failed to fetch orders");
         }
         const data = await response.json();
         setOrders(data);
@@ -35,33 +34,46 @@ const MyOrdersPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-semibold text-center mb-8">My Orders</h1>
-      <div className="space-y-4">
+    <div className="container mx-auto px-6 py-10">
+      <h1 className="text-4xl font-bold text-center mb-12 text-gray-800">My Orders</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {orders.length === 0 ? (
           <div className="text-center text-lg text-gray-600">No orders found</div>
         ) : (
           orders.map((order: any) => (
             <div
               key={order?.id}
-              className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300"
+              className="p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-transform transform hover:scale-105 duration-300"
             >
-              <h3 className="text-2xl font-medium text-gray-800 mb-2">Order ID: {order?.id}</h3>
-              <p className="text-gray-600">Clerk ID: <span className="font-semibold">{order?.clerkId}</span></p>
-              <p className="text-gray-600">User ID: <span className="font-semibold">{order?.userId}</span></p>
-              <p className="text-gray-600">Product ID: <span className="font-semibold">{order?.productId}</span></p>
-              <p className="text-gray-600">Quantity: <span className="font-semibold">{order?.quantity}</span></p>
-              <p className="text-gray-600">Status: <span className="font-semibold">{order?.status}</span></p>
-              <p className="text-gray-600">Price: <span className="font-semibold">${(order?.price / 100).toFixed(2)}</span></p>
-              <p className="text-gray-600">Created At: <span className="font-semibold">{new Date(order?.createdAt).toLocaleDateString()}</span></p>
-              <p className="text-gray-600">Updated At: <span className="font-semibold">{new Date(order?.updatedAt).toLocaleDateString()}</span></p>
-
-              {order?.razorpay_order_id && (
-                <p className="text-gray-600">Razorpay Order ID: <span className="font-semibold">{order?.razorpay_order_id}</span></p>
-              )}
-              {order?.razorpay_payment_id && (
-                <p className="text-gray-600">Razorpay Payment ID: <span className="font-semibold">{order?.razorpay_payment_id}</span></p>
-              )}
+              <h2 className="text-xl font-semibold mb-4 text-gray-700">
+                Order #{order?.razorpay_order_id || "N/A"}
+              </h2>
+              <div className="space-y-2">
+                <p className="text-gray-600">
+                  <span className="font-semibold">Product:</span> {order?.product?.name || "N/A"}
+                </p>
+                <p className="text-gray-600">
+                  <span className="font-semibold">Quantity:</span> {order?.quantity}
+                </p>
+                <p className="text-gray-600">
+                  <span className="font-semibold">Payment Status:</span> {order?.status}
+                </p>
+                <p className="text-gray-600">
+                  <span className="font-semibold">Price:</span> ${(order?.price / 100).toFixed(2)}
+                </p>
+                <p className="text-gray-600">
+                  <span className="font-semibold">Order Date:</span>{" "}
+                  {new Date(order?.createdAt).toLocaleDateString()}
+                </p>
+                {order?.razorpay_payment_id && (
+                  <p className="text-gray-600">
+                    <span className="font-semibold">Payment ID:</span> {order?.razorpay_payment_id}
+                  </p>
+                )}
+              </div>
+              <button className="mt-4 w-full py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors duration-300">
+                Need Help?
+              </button>
             </div>
           ))
         )}
