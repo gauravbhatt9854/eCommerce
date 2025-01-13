@@ -63,9 +63,13 @@ export async function POST(req: Request) {
     let subject: string = 'Welcome to the family';
     
     const newData = data as UserJSON;
-  
+    
     type Val = { message: string} | undefined;
 
+    const val:Val = await sendMail(subject, text, data);
+    console.log(val?.message)
+    if(val?.message !== 'Email sent') return NextResponse.json({ message: 'Email not sent', isOk: false }, { status: 400 });
+    
     const dataOfUser =
     {
       id: newData?.id,
@@ -95,8 +99,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "User creation failed", isOk: false }, { status: 400 })
     }
 
-    const val:Val = await sendMail(subject, text, data);
-    if(val?.message !== 'Email sent') return NextResponse.json({ message: 'Email not sent', isOk: false }, { status: 400 });
 
   } 
 
