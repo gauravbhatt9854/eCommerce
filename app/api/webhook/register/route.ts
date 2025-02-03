@@ -3,12 +3,12 @@ import { headers } from 'next/headers';
 import { auth, UserJSON, WebhookEvent } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { sendMail } from '@/app/services/rotue';
+import { sendAccountCreationEmail, sendAccountDeletionEmail } from '@/app/services/rotue';
 
 export async function POST(req: Request) {
 
   const SIGNING_SECRET = process.env.SIGNING_SECRET;
-  
+
 
   if (!SIGNING_SECRET) {
     throw new Error(
@@ -49,18 +49,17 @@ export async function POST(req: Request) {
 
   const eventType = evt.type;
   const { data } = evt;
+  type Val = { message: string } | undefined;
   // user created
 
   if (eventType === 'user.created') {
-    
-    const newData = data as UserJSON;
-    
-    type Val = { message: string} | undefined;
 
-    const val:Val = await sendMail(data);
+    const newData = data as UserJSON;
+
+    const val: Val = await sendAccountCreationEmail(data);
     console.log(val?.message)
-    if(val?.message !== 'Email sent') return NextResponse.json({ message: 'Email not sent', isOk: false }, { status: 400 });
-    
+    if (val?.message !== 'Email sent') return NextResponse.json({ message: 'Email not sent', isOk: false }, { status: 400 });
+
     const dataOfUser =
     {
       id: newData?.id,
@@ -78,7 +77,7 @@ export async function POST(req: Request) {
           phone: dataOfUser.phone,
         },
       })
-      
+
       if (user) {
         console.log(user)
         return NextResponse.json(
@@ -91,18 +90,18 @@ export async function POST(req: Request) {
     }
 
 
-  } 
+  }
 
 
   // use deleted
 
   if (eventType === 'user.deleted') {
     let clerkId: string | undefined = data?.id;
-  
+
     if (typeof clerkId !== 'string' || !clerkId) {
-        clerkId ="1";
+      clerkId = "1";
     }
-  
+
     try {
       // Delete all orders associated with the user
       await prisma.order.deleteMany({
@@ -110,14 +109,26 @@ export async function POST(req: Request) {
           clerkId: clerkId,
         },
       });
-  
+
+      const tempUser = await prisma.user.findMany({
+        where: {
+          clerkId: clerkId,
+        },
+      });
+
+
       // Delete the user account
       await prisma.user.deleteMany({
         where: {
           clerkId: clerkId,
         },
       });
-  
+
+      const val: Val = await sendAccountDeletionEmail(tempUser[0]);
+      console.log(val?.message)
+      if (val?.message !== 'Email sent') return NextResponse.json({ message: 'Email not sent', isOk: false }, { status: 400 });
+
+
       console.log(`Deleted user and orders for clerkId: ${clerkId}`);
     } catch (error) {
       console.error('Error deleting user and associated orders:', error);
@@ -126,7 +137,7 @@ export async function POST(req: Request) {
       });
     }
   }
-  
+
 
   return NextResponse.json('Webhook received', { status: 200 });
 }
