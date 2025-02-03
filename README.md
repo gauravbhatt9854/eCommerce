@@ -1,1 +1,1 @@
-visit : https:oc.golu.codes
+visit : https://oc.golu.codes
