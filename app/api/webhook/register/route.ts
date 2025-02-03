@@ -52,21 +52,12 @@ export async function POST(req: Request) {
   // user created
 
   if (eventType === 'user.created') {
-
-    let text: string = `Thank you for registering with us. 
-    We are excited to have you on board. 
-    Please let us know if you have any queries. 
-    We are here to help you. Have a great day ahead
-    
-    Gaurav Bhatt`;
-
-    let subject: string = 'Welcome to the family';
     
     const newData = data as UserJSON;
     
     type Val = { message: string} | undefined;
 
-    const val:Val = await sendMail(subject, text, data);
+    const val:Val = await sendMail(data);
     console.log(val?.message)
     if(val?.message !== 'Email sent') return NextResponse.json({ message: 'Email not sent', isOk: false }, { status: 400 });
     
