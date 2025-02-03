@@ -1,9 +1,18 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { currentUser } from "@clerk/nextjs/server";
 
 export async function DELETE(req: NextRequest) {
+
+          const  user  = await currentUser()
+          console.log(user?.publicMetadata.role)
+          if(user?.publicMetadata.role !== 'admin')
+          {
+            return NextResponse.json({message: 'You are not authorized'}, {status: 401})
+          }
     const {  id } = await req.json();
+
 
     if (!id) {
         return NextResponse.json({ message: "Missing ID" }, { status: 400 });

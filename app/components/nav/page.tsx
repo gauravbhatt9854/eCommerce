@@ -35,6 +35,11 @@ const Nav = () => {
         <Button>My Orders</Button>
       </Link>
     </NavigationMenuItem>
+    <NavigationMenuItem>
+      <Link href="/components/allorder">
+        <Button>All Orders</Button>
+      </Link>
+    </NavigationMenuItem>
     </div>
 
   )
