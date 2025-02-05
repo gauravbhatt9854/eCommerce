@@ -19,11 +19,8 @@ model Order {
   razorpay_order_id   String?
   razorpay_payment_id String?
   price               Int      @default(0)
-
-  // Relation to User model
-  user                User     @relation(fields: [userId], references: [id])
-  // Relation to Product model
   product             Product  @relation(fields: [productId], references: [id])
+  user                User     @relation(fields: [userId], references: [id])
 }
 
 model Product {
@@ -33,9 +30,7 @@ model Product {
   price       Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  image       String?
-
-  // Reverse relation to Order model
+  imageUrls   String[]
   orders      Order[]
 }
 
@@ -47,7 +42,5 @@ model User {
   phone     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Reverse relation to Order model
   orders    Order[]
 }

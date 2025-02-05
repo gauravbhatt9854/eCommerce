@@ -1,33 +1,61 @@
-import prisma from "@/lib/prisma";
-import { currentUser } from "@clerk/nextjs/server";
-import { NextRequest, NextResponse } from "next/server";
-export async function POST(req :Request) {
+import { NextResponse } from "next/server";
+import minioClient from "../minioS3/route";
+import { PrismaClient } from "@prisma/client";
 
-      const  user  = await currentUser()
-      console.log(user?.publicMetadata.role)
-      if(user?.publicMetadata.role !== 'admin')
-      {
-        return NextResponse.json({message: 'You are not authorized'}, {status: 401})
+const prisma = new PrismaClient();
+
+// Helper function to upload file directly to MinIO
+async function uploadFileToMinIO(fileBuffer: Buffer, fileName: string) {
+  const bucket = process.env.MINIO_BUCKET || "bucket01"; // Replace with your MinIO bucket name
+
+  // Upload the file to MinIO
+  await minioClient.putObject(bucket, fileName, fileBuffer);
+
+  // Generate a presigned URL for the uploaded file
+  const fileUrl = await minioClient.presignedGetObject(bucket, fileName);
+  return fileUrl;
+}
+
+// Export async POST function to handle image uploads
+export async function POST(request: Request) {
+  try {
+    const formData = await request.formData();
+    const files = formData.getAll("images");  // Use `getAll` to retrieve all files
+
+    if (files.length === 0) {
+      return NextResponse.json({ error: "At least one image is required." }, { status: 400 });
+    }
+
+    const fileUrls: string[] = [];
+    const fileNames = [] as string[];
+
+    // Loop through each image file and upload it to MinIO
+    for (const file of files) {
+      if (file instanceof File) {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const fileName = `product-images/${Date.now()}-${file.name}`;
+        fileNames.push(fileName);
+
+        // Upload the image to MinIO and get the file URL
+        const fileUrl = await uploadFileToMinIO(buffer, fileName);
+        fileUrls.push(fileUrl);
       }
-    const {name , description , price} = await req.json();
-
-    console.log(name, description, price);
-    console.log(typeof name, typeof description, typeof price);
-    try {
-        const product = await prisma.product.create({
-            data: {
-              name: name as string,
-              description: description as string,
-              price: Number(price) // convert to number because json stringify and parse change the type of everything
-            },
-          });
-
-        if (product) {
-            console.log(product);
-            return NextResponse.json({ product, isOk: true }, { status: 200 });
     }
-    } catch (error) {
-        console.log(error);
-        return NextResponse.json({ message: "User creation failed", isOk: false }, { status: 400 });
-    }
+
+    // Save product details in Prisma with the image URLs
+// Saving product with multiple image URLs
+const newProduct = await prisma.product.create({
+  data: {
+    name: formData.get("name") as string,
+    description: formData.get("description") as string,
+    price: parseFloat(formData.get("price") as string),
+    imageUrls: fileUrls,  // Save the array of image URLs
+  },
+});
+
+    return NextResponse.json({ success: true, product: newProduct });
+  } catch (error) {
+    console.error("Error uploading images or saving product:", error);
+    return NextResponse.json({ error: "Failed to upload images or save product." }, { status: 500 });
+  }
 }

@@ -3,11 +3,17 @@ import { useUser } from "@clerk/nextjs";
 import { useParams, useRouter } from "next/navigation";
 import Script from "next/script";
 import { useEffect, useState } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
+import { Navigation } from "swiper/modules";
+
 
 interface Product {
   name: string;
   description: string;
   price: number;
+  imageUrls: string[]
 }
 
 const Page = () => {
@@ -217,59 +223,81 @@ const Page = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-gray-50">
-      <Script
-        src="https://checkout.razorpay.com/v1/checkout.js"
-        strategy="lazyOnload"
-      />
-      <h1 className="text-4xl font-bold text-center mb-12 text-gray-800">
-        Product Details
-      </h1>
+    <div className="max-w-full min-h-screen px-4 sm:px-6 lg:px-8 py-12 bg-gray-50">
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
+      <h1 className="text-5xl font-bold text-center mb-12 text-gray-800">Product Details</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="flex flex-col lg:flex-row items-center justify-between gap-16">
         {product ? (
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-3">
-                {product.name}
-              </h2>
-              <p className="text-gray-600 mb-4">{product.description}</p>
-              <p className="text-indigo-700 font-semibold text-lg">
-                ₹{product.price}
-              </p>
+          <div className="flex flex-col lg:flex-row w-full bg-white shadow-2xl rounded-xl overflow-hidden">
+            {/* Left Side: Product Image */}
+            <div className="w-full lg:w-1/2 p-8">
+              <div className="product-images">
+                {product?.imageUrls?.length > 0 && (
+                  <Swiper
+                    navigation={true}
+                    modules={[Navigation]}
+                    spaceBetween={50}
+                    slidesPerView={1}
+                    loop={true}
+                    className="mySwiper"
+                  >
+                    {product.imageUrls.map((image, index) => (
+                      <SwiperSlide key={index}>
+                        <img
+                          src={image}
+                          alt={`Product Image ${index + 1}`}
+                          className="w-full h-full object-cover rounded-lg shadow-lg"
+                        />
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                )}
+              </div>
+            </div>
 
+            {/* Right Side: Product Details */}
+            <div className="w-full lg:w-1/2 p-8">
+              <div className="flex flex-col mb-8">
+                <h2 className="text-4xl font-bold text-gray-800 mb-4">{product.name}</h2>
+                <p className="text-lg text-gray-600 mb-8">{product.description}</p>
+                <p className="text-indigo-700 font-semibold text-3xl">₹{product.price}</p>
+              </div>
+
+              {/* Admin Actions & Editing Form */}
               {isAdmin && !isEditing && (
-                <div className="mt-6 flex space-x-4">
+                <div className="mt-8 flex space-x-8">
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="px-6 py-2 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition"
+                    className="px-8 py-4 bg-green-600 text-white font-semibold rounded-lg shadow-xl hover:bg-green-700 transition"
                   >
                     Edit Product
                   </button>
                   <button
                     onClick={handleDelete}
-                    className="px-6 py-2 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition"
+                    className="px-8 py-4 bg-red-600 text-white font-semibold rounded-lg shadow-xl hover:bg-red-700 transition"
                   >
                     Delete Product
                   </button>
                 </div>
               )}
 
+              {/* Edit Product Form */}
               {isAdmin && isEditing && (
-                <div className="mt-6 p-4 border border-gray-300 rounded-lg bg-gray-50">
+                <div className="mt-8 p-6 border border-gray-300 rounded-lg bg-gray-50">
                   <input
                     type="text"
                     name="name"
                     value={editedProduct?.name || ""}
                     onChange={handleEditChange}
-                    className="w-full p-3 mb-3 border rounded-lg focus:ring-2 focus:ring-green-500"
+                    className="w-full p-4 mb-4 border rounded-lg focus:ring-2 focus:ring-green-500"
                     placeholder="Product Name"
                   />
                   <textarea
                     name="description"
                     value={editedProduct?.description || ""}
                     onChange={handleEditChange}
-                    className="w-full p-3 mb-3 border rounded-lg focus:ring-2 focus:ring-green-500"
+                    className="w-full p-4 mb-4 border rounded-lg focus:ring-2 focus:ring-green-500"
                     placeholder="Product Description"
                   />
                   <input
@@ -277,19 +305,19 @@ const Page = () => {
                     name="price"
                     value={editedProduct?.price || ""}
                     onChange={handleEditChange}
-                    className="w-full p-3 mb-3 border rounded-lg focus:ring-2 focus:ring-green-500"
+                    className="w-full p-4 mb-4 border rounded-lg focus:ring-2 focus:ring-green-500"
                     placeholder="Product Price"
                   />
-                  <div className="flex space-x-4">
+                  <div className="flex space-x-8">
                     <button
                       onClick={handleSaveChanges}
-                      className="px-6 py-2 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition"
+                      className="px-8 py-4 bg-green-600 text-white font-semibold rounded-lg shadow-xl hover:bg-green-700 transition"
                     >
                       Save Changes
                     </button>
                     <button
                       onClick={() => setIsEditing(false)}
-                      className="px-6 py-2 bg-gray-400 text-white font-semibold rounded-lg shadow-md hover:bg-gray-500 transition"
+                      className="px-8 py-4 bg-gray-400 text-white font-semibold rounded-lg shadow-xl hover:bg-gray-500 transition"
                     >
                       Cancel
                     </button>
@@ -297,13 +325,14 @@ const Page = () => {
                 </div>
               )}
 
-              {!isEditing && (
+              {/* Payment Button */}
+              {!isEditing && !isAdmin && (
                 <button
                   onClick={handlePayment}
                   disabled={loading}
-                  className={`mt-6 px-6 py-3 w-full text-white font-semibold rounded-lg shadow-md ${loading
+                  className={`mt-8 px-8 py-4 w-full text-white font-semibold rounded-lg shadow-xl ${loading
                     ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-blue-500 hover:bg-blue-600 focus:ring-2 focus:ring-blue-300 transition"
+                    : "bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-300 transition"
                     }`}
                 >
                   {loading ? "Processing..." : "Pay Now"}
@@ -316,6 +345,9 @@ const Page = () => {
         )}
       </div>
     </div>
+
+
+
 
   );
 };
