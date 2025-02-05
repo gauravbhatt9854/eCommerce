@@ -8,19 +8,20 @@ datasource db {
 }
 
 model Order {
-  id                  String            @id @default(uuid())
+  id                  String                   @id @default(uuid())
   clerkId             String
   userId              String
   productId           String
-  quantity            Int               @default(1)
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
-  status              String            @default("PENDING")
+  quantity            Int                      @default(1)
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+  status              String                   @default("PENDING")
   razorpay_order_id   String?
   razorpay_payment_id String?
-  price               Int               @default(0)
-  product             Product           @relation(fields: [productId], references: [id])
-  user                User              @relation(fields: [userId], references: [id])
+  price               Int                      @default(0)
+  supportMessages     CustomerSupportMessage[]
+  product             Product                  @relation(fields: [productId], references: [id])
+  user                User                     @relation(fields: [userId], references: [id])
   reportedProblems    ReportedProblem[]
 }
 
@@ -36,13 +37,15 @@ model Product {
 }
 
 model User {
-  id               String            @id @default(uuid())
+  id               String                   @id @default(uuid())
   clerkId          String
-  email            String            @unique
+  email            String                   @unique
   name             String
   phone            String?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+  messagesReceived CustomerSupportMessage[] @relation("Receiver")
+  messagesSent     CustomerSupportMessage[] @relation("Sender")
   orders           Order[]
   reportedProblems ReportedProblem[]
 }
@@ -57,4 +60,16 @@ model ReportedProblem {
   status      String   @default("PENDING")
   order       Order    @relation(fields: [orderId], references: [id])
   user        User     @relation(fields: [userId], references: [id])
+}
+
+model CustomerSupportMessage {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  message    String
+  timestamp  DateTime @default(now())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id])
+  receiver   User     @relation("Receiver", fields: [receiverId], references: [id])
+  sender     User     @relation("Sender", fields: [senderId], references: [id])
 }
