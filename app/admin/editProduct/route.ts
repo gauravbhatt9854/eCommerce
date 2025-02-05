@@ -1,18 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import { currentUser } from "@clerk/nextjs/server";
+import { isAuthorized } from "../checkPoint/route";
 
 // API route for updating product details
 export async function PUT(req: NextRequest) {
 
-          const  user  = await currentUser()
-          console.log(user?.publicMetadata.role)
-          if(user?.publicMetadata.role !== 'admin')
-          {
-            return NextResponse.json({message: 'You are not authorized'}, {status: 401})
-          }
-    console.log("put method called");
+         
+    if(!(await isAuthorized())) return NextResponse.json({ message: "access denied" }, { status: 400 });
     const { name, description, price , id } = await req.json();
 
     if (!name || !description || !price) {

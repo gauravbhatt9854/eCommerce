@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import minioClient from "../minioS3/route";
 import { PrismaClient } from "@prisma/client";
+import { isAuthorized } from "../checkPoint/route";
 
 const prisma = new PrismaClient();
 
@@ -19,6 +20,8 @@ async function uploadFileToMinIO(fileBuffer: Buffer, fileName: string) {
 // Export async POST function to handle image uploads
 export async function POST(request: Request) {
   try {
+    if(!(await isAuthorized())) return NextResponse.json({ message: "access denied" }, { status: 400 });
+    
     const formData = await request.formData();
     const files = formData.getAll("images");  // Use `getAll` to retrieve all files
 

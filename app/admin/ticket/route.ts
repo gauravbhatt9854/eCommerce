@@ -1,15 +1,23 @@
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import { isAuthorized } from "../checkPoint/route";
 
 const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
   try {
+    if(!(await isAuthorized())) return NextResponse.json({ message: "access denied" }, { status: 400 });
+
     // Fetch the Tickets (reported problems) from the database
     const tickets = await prisma.reportedProblem.findMany({
       include: {
         user: true,   // Include the related user details
-        order: true,  // Include the related order details
+        order: 
+        {
+          include: {
+            product: true, // Include the related product details
+          }
+        } // Include the related order details
       },
     });
 

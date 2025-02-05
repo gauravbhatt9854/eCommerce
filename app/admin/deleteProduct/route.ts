@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import minioClient from "../minioS3/route";
 import prisma from "@/lib/prisma";
+import { isAuthorized } from "../checkPoint/route";
 
 // Function to delete images from MinIO
 async function deleteImagesFromMinIO(imageUrls: string[]) {
@@ -25,6 +26,7 @@ async function deleteImagesFromMinIO(imageUrls: string[]) {
   // DELETE handler to delete product and images
   export async function DELETE(req: NextRequest) {
     try {
+      if(!(await isAuthorized())) return NextResponse.json({ message: "access denied" }, { status: 400 });
       const { id } = await req.json();
       const user = await currentUser();
   
