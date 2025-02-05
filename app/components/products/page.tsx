@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useAdmin } from "../provider/AdminProvider";
 
 interface Product {
   id: string;
@@ -11,10 +12,10 @@ interface Product {
 }
 
 const ProductsPage = () => {
+  const { isAdmin } = useAdmin();
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -39,20 +40,7 @@ const ProductsPage = () => {
 
     fetchProducts();
   }, [isModalOpen]);
-
-  useEffect(() => {
-    const checkAdmin = async () => {
-      try {
-        const res = await fetch("/services/checkadmin", { method: "POST" });
-        const data = await res.json();
-        setIsAdmin(data.isAdmin);
-      } catch (error) {
-        console.error("Error checking admin status:", error);
-      }
-    };
-
-    checkAdmin();
-  }, []);
+  
 
   const handleNewProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

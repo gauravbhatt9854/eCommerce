@@ -7,6 +7,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
+import { useAdmin } from "../../provider/AdminProvider";
 
 
 interface Product {
@@ -17,11 +18,11 @@ interface Product {
 }
 
 const Page = () => {
+  const {isAdmin} = useAdmin();
   const params = useParams();
   const { user } = useUser();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false); // To track if the user is an admin
   const [isEditing, setIsEditing] = useState(false); // To toggle product edit mode
   const [editedProduct, setEditedProduct] = useState<Product | null>(null); // For handling edited values
   const router = useRouter();
@@ -51,23 +52,8 @@ const Page = () => {
       }
     };
 
-    const checkAdmin = async () => {
-      try {
-        const res = await fetch("/services/checkadmin", {
-          method: "POST",
-        });
-        const data = await res.json();
-        if (data.isAdmin) {
-          setIsAdmin(true); // Set admin status
-        }
-      } catch (error) {
-        console.error("Error checking admin status:", error);
-      }
-    };
-
     if (params?.id) {
       fetchProduct();
-      checkAdmin(); // Check if the user is an admin
     }
   }, [params?.id]);
 
@@ -326,7 +312,7 @@ const Page = () => {
               )}
 
               {/* Payment Button */}
-              {!isEditing && !isAdmin && (
+              {!isEditing  && (
                 <button
                   onClick={handlePayment}
                   disabled={loading}
