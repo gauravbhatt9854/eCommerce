@@ -6,6 +6,7 @@ import Nav from './components/nav/page'
 import { AdminProvider } from './components/provider/AdminProvider'
 import { SocketProvider } from './components/provider/SocketProvider'
 
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <AdminProvider>

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useSocket } from "../provider/SocketProvider";
 
 interface Message {
@@ -16,37 +16,35 @@ const ChatComponent: React.FC = () => {
 
   // Ref for scrolling
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Listen for new messages
+  const handleNewMessage = useCallback((data: any) => {
+    console.log("Received message:", data?.message);
+    data = data?.message;
+
+    const newMessage: Message = {
+      username: data.username || "Unknown",
+      message: data.message || "No message",
+      profileUrl: data.profileUrl || "https://via.placeholder.com/40",
+      timestamp: data.timestamp || new Date(),
+    };
+
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+  }, []);
+
   useEffect(() => {
     if (!socket) {
       console.log("No socket connection");
       return;
     }
-  
-    console.log("Socket connected");
-    
-    const handleNewMessage = (data: any) => {
-      console.log("Received message:", data);  // Log the data to verify message structure
-  
-      let newMsg: Message = {
-        username: data.username || "Unknown",
-        message: data.message.message|| "No message",
-        profileUrl: data.profileUrl || "https://via.placeholder.com/40",
-        timestamp: data.timestamp || new Date(),
-      };
-  
-      setMessages((prevMessages) => [...prevMessages, newMsg]);
-    };
-  
+
     socket.on("newChatMessage", handleNewMessage);
-  
+
     return () => {
       socket.off("newChatMessage", handleNewMessage);
     };
-  }, [socket, messages, user]);
-  
-  
+  }, [socket, messages , user]);
 
   // Send a new message
   const sendMessage = (e: React.FormEvent) => {
@@ -61,7 +59,6 @@ const ChatComponent: React.FC = () => {
       };
 
       socket.emit("chatMessage", newMessage);
-
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       setMessage("");
     }
@@ -69,8 +66,14 @@ const ChatComponent: React.FC = () => {
 
   // Auto-scroll to the latest message
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    const messagesContainer = messagesContainerRef.current;
+    const messagesEnd = messagesEndRef.current;
+
+    if (messagesContainer && messagesEnd) {
+      const isAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop === messagesContainer.clientHeight;
+      if (isAtBottom) {
+        messagesEnd.scrollIntoView({ behavior: "smooth" });
+      }
     }
   }, [messages]);
 
@@ -80,7 +83,7 @@ const ChatComponent: React.FC = () => {
         }`}
     >
       <div className="flex flex-col h-full">
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={messagesContainerRef}>
           <div
             className={`${messages.length === 0 ? "block" : "hidden"
               } text-center text-gray-500 font-bold`}
@@ -105,7 +108,7 @@ const ChatComponent: React.FC = () => {
                 <div
                   className={`p-2 rounded-lg max-w-xs break-words ${msg.username === "You" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"}`}
                 >
-                  <p className="text-sm">{typeof msg.message === 'string' ? msg.message : "Invalid message"}</p>
+                  <p className="text-sm">{msg.message}</p>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
                   {msg.username} • {new Date(msg.timestamp).toLocaleTimeString()}
