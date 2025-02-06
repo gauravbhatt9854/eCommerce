@@ -8,9 +8,9 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   NavigationMenuViewport,
-} from "@/components/ui/navigation-menu"
+} from "../../TEMP/ui/navigation-menu"
 import { UserButton } from '@clerk/nextjs'
-import { Button } from "@/components/ui/button"
+import { Button } from "../..//TEMP/ui/button"
 import Link from "next/link"
 import { useAdmin } from "../provider/AdminProvider"
 import { useSocket } from "../provider/SocketProvider"
@@ -46,11 +46,6 @@ const Nav = () => {
       </Link>)}
 
       {isAdmin && (<Link href="/components/tickets">
-        <NavigationMenuItem>
-          <Button>Tickets</Button>
-        </NavigationMenuItem>
-      </Link>)}
-      {isAdmin && (<Link href="/components/support/adminSupport">
         <NavigationMenuItem>
           <Button>Support</Button>
         </NavigationMenuItem>

@@ -1,6 +1,4 @@
 "use client";
-import ChatComponent from "../globalChat/page";
-
 const HomePage = () => {
   const handleStartShopping = () => {
     // Redirect to the products page or any other shopping page
@@ -8,8 +6,7 @@ const HomePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center relative">
-            <ChatComponent />
+    <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center">
       <div className="text-center p-8 bg-white shadow-lg rounded-xl">
         <h1 className="text-5xl font-extrabold text-gray-900 mb-6">
           Welcome to ShopEase

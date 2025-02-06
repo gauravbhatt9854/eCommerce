@@ -1,16 +1,41 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, use } from "react";
+import {  useUser } from '@clerk/nextjs'
 
 const SupportComponent: React.FC<{ orderId: string; customerId: string }> = ({ orderId, customerId }) => {
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<{ senderId: string; receiverId: string; message: string; timestamp: string; }[]>([]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [dbId , setDbId] = useState<string | null>(null)
+
+  const { user } = useUser()
+  useEffect(() => {
+    // make a api call to get the user details has clerkId = user.id
+    const fetchUser = async () => {
+      try {
+        const response = await fetch("/api/clerkId", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ clerkId: user?.id }),
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch user");
+
+        const data = await response.json();
+        setDbId(data.id);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    }
+
+    fetchUser();
+  }, [user]);
 
   // Fetch messages for the specific order
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch("/components/support/fetch", {
+        const response = await fetch("/components/tickets/fetch", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ orderId, customerId }),
@@ -33,15 +58,25 @@ const SupportComponent: React.FC<{ orderId: string; customerId: string }> = ({ o
     e.preventDefault();
     if (!message.trim()) return;
 
-    const newMessage = {
-      senderId: customerId,
-      receiverId: null, // Admin replies to customer, customer to admin
-      orderId,
-      message,
-    };
+    let newMessage;
 
+    if(customerId==dbId){
+      newMessage = {
+        senderId: dbId,
+        receiverId: null, 
+        orderId,
+        message,
+      };
+    }else{
+      newMessage = {
+        senderId: dbId,
+        receiverId: customerId, 
+        orderId,
+        message,
+      };
+    }
     try {
-      const response = await fetch("/components/support/send", {
+      const response = await fetch("/components/tickets/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newMessage),
@@ -79,11 +114,11 @@ const SupportComponent: React.FC<{ orderId: string; customerId: string }> = ({ o
             messages.map((msg, index) => (
               <div
                 key={index}
-                className={`flex items-start mb-2 ${msg.senderId === customerId ? "justify-end" : "justify-start"}`}
+                className={`flex items-start mb-2 ${msg.senderId === dbId ? "justify-end" : "justify-start"}`}
               >
                 <div>
                   <div
-                    className={`p-2 rounded-lg max-w-xs break-words ${msg.senderId === customerId ? "bg-gray-200 text-gray-800" : "bg-blue-500 text-white"}`}
+                    className={`p-2 rounded-lg max-w-xs break-words ${msg.senderId === dbId ? "bg-gray-200 text-gray-800" : "bg-blue-500 text-white"}`}
                   >
                     <p className="text-sm">{msg.message}</p>
                   </div>

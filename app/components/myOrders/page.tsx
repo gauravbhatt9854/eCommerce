@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
-import SupportComponent from "../support/page";
+import SupportComponent from "../tickets/chatPage/page";
 
 interface Order {
   id: string;
@@ -25,7 +25,7 @@ const MyOrdersPage: React.FC = () => {
   // Separate state to handle support box visibility for each order
   const [supportBoxOpen, setSupportBoxOpen] = useState<{ [key: string]: boolean }>({});
   const [reportProblemModalOpen, setReportProblemModalOpen] = useState<{ [key: string]: boolean }>({});
-  
+
   const supportBoxRef = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   useEffect(() => {
@@ -64,6 +64,7 @@ const MyOrdersPage: React.FC = () => {
         throw new Error("Failed to report problem");
       }
       setReportProblemModalOpen((prev) => ({ ...prev, [selectedOrder.id]: false }));
+      alert("Problem reported successfully");
     } catch (error) {
       alert("Failed to submit problem");
     }
@@ -75,6 +76,7 @@ const MyOrdersPage: React.FC = () => {
 
   const toggleReportProblemModal = (orderId: string) => {
     setReportProblemModalOpen((prev) => ({ ...prev, [orderId]: !prev[orderId] }));
+    setSelectedOrder(orders.find((order) => order.id === orderId) || null); // Set selected order when modal is opened
   };
 
   // Close support box if clicked outside
@@ -90,7 +92,7 @@ const MyOrdersPage: React.FC = () => {
             !supportBoxRef.current[key]?.contains(target) &&
             supportBoxOpen[key]
           ) {
-            setSupportBoxOpen((prev) => ({ ...prev, [key]: false }));            
+            setSupportBoxOpen((prev) => ({ ...prev, [key]: false }));
           }
         }
       }
@@ -174,7 +176,10 @@ const MyOrdersPage: React.FC = () => {
                       value={problemDescription}
                       onChange={(e) => setProblemDescription(e.target.value)}
                     ></textarea>
-                    <button className="bg-blue-500 text-white p-2 rounded w-full" onClick={handleReportProblem}>
+                    <button
+                      className="bg-blue-500 text-white p-2 rounded w-full"
+                      onClick={handleReportProblem} // Trigger the report problem function
+                    >
                       Submit
                     </button>
                     <button className="mt-2 text-gray-500" onClick={() => setReportProblemModalOpen((prev) => ({ ...prev, [order.id]: false }))}>
