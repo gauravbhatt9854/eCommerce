@@ -34,7 +34,7 @@ const SupportComponent: React.FC<{ orderId: string; customerId: string }> = ({ o
     if (!message.trim()) return;
 
     const newMessage = {
-      senderId: customerId,
+      senderId: customerId, // Customer is the sender
       receiverId: null, // Admin replies to customer, customer to admin
       orderId,
       message,
@@ -50,9 +50,9 @@ const SupportComponent: React.FC<{ orderId: string; customerId: string }> = ({ o
       if (!response.ok) throw new Error("Failed to send message");
       const data = await response.json();
 
-      // Add the new message to the state and update UI
+      // Instantly update UI
       setMessages((prevMessages) => [...prevMessages, data]);
-      setMessage(""); // Clear the input field
+      setMessage(""); // Clear input after sending
     } catch (error) {
       console.error("Error sending message:", error);
     }
@@ -66,7 +66,7 @@ const SupportComponent: React.FC<{ orderId: string; customerId: string }> = ({ o
   }, [messages]);
 
   return (
-    <div className="fixed top-6 right-0 w-[350px] h-[450px] bg-white shadow-lg rounded-lg border border-gray-300">
+    <div className="w-[350px] h-[450px] bg-white shadow-lg rounded-lg border border-gray-300">
       <div className="flex flex-col h-full">
         {/* Header */}
         <div className="bg-gray-200 text-black p-3 font-semibold rounded-t-lg text-center">Order Chat - #{orderId}</div>
@@ -79,11 +79,17 @@ const SupportComponent: React.FC<{ orderId: string; customerId: string }> = ({ o
             messages.map((msg, index) => (
               <div
                 key={index}
-                className={`flex items-start mb-2 ${msg.senderId === customerId ? "justify-end" : "justify-start"}`}
+                className={`flex items-start mb-2 ${
+                  msg.receiverId === customerId ? "justify-start" : "justify-end"
+                }`}
               >
                 <div>
                   <div
-                    className={`p-2 rounded-lg max-w-xs break-words ${msg.senderId === customerId ? "bg-gray-200 text-gray-800" : "bg-blue-500 text-white"}`}
+                    className={`p-2 rounded-lg max-w-xs break-words ${
+                      msg.receiverId === customerId
+                        ? "bg-gray-200 text-gray-800" // Customer's message on the left
+                        : "bg-blue-500 text-white" // Admin's message on the right
+                    }`}
                   >
                     <p className="text-sm">{msg.message}</p>
                   </div>

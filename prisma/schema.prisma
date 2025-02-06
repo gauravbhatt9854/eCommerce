@@ -69,6 +69,7 @@ model CustomerSupportMessage {
   message    String
   timestamp  DateTime @default(now())
   orderId    String
+  status     String   @default("ACTIVE")
   order      Order    @relation(fields: [orderId], references: [id])
   receiver   User     @relation("Receiver", fields: [receiverId], references: [id])
   sender     User     @relation("Sender", fields: [senderId], references: [id])

@@ -50,6 +50,11 @@ const Nav = () => {
           <Button>Tickets</Button>
         </NavigationMenuItem>
       </Link>)}
+      {isAdmin && (<Link href="/components/support/adminSupport">
+        <NavigationMenuItem>
+          <Button>Support</Button>
+        </NavigationMenuItem>
+      </Link>)}
 
       <NavigationMenuItem>
         <Button onClick={() => setIsChat((pre) => !pre)}>Chat</Button>

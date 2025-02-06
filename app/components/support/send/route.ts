@@ -8,16 +8,19 @@ export async function POST(req: NextRequest, res: NextResponse) {
     console.log("Sending message")
     const { senderId, receiverId, message, orderId } = await req.json();
     // Validate input
-    if (!senderId || !message || !orderId) {
+    if ( !message || !orderId) {
       return NextResponse.json({ message: "All fields are required" }, { status: 400 });
     }
 
     // Check if the sender, receiver, and order exist in the database
-    const senderExists = await prisma.user.findMany({ where: { id: senderId } });
-    // const receiverExists = await prisma.user.findMany({ where: { id: receiverId } });
+    const alternateReceiverId = receiverId ||  process.env.SUPPORT_ID || "";
+    const alternateSenderId = senderId || process.env.SUPPORT_ID || "";
+
+    const senderExists = await prisma.user.findMany({ where: { id: alternateSenderId } });
+    const receiverExists = await prisma.user.findMany({ where: { id: alternateReceiverId } });
     const orderExists = await prisma.order.findMany({ where: { id: orderId } });
 
-    if (!senderExists || !orderExists) {
+    if (!senderExists || !orderExists || !receiverExists) {
       return NextResponse.json({ message: "Invalid sender, receiver, or order ID" }, { status: 400 });
     }
 
@@ -25,8 +28,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
     // Create a new message
     const newMessage = await prisma.customerSupportMessage.create({
       data: {
-        senderId,
-        receiverId : receiverId || process.env.SUPPORT_ID || "",
+        senderId : alternateSenderId,
+        receiverId : alternateReceiverId,
         message,
         orderId,
       },
