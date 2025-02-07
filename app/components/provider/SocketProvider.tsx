@@ -1,10 +1,10 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, ReactNode, useRef, useMemo } from "react";
+import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { io, Socket } from "socket.io-client";
 import { useUser } from "@clerk/nextjs";
 
-// Define types for the context
+// Define the context type
 interface SocketContextType {
   socket: Socket | null;
 }
@@ -12,58 +12,48 @@ interface SocketContextType {
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 const SOCKET_SERVER_URL = process.env.NEXT_PUBLIC_CHAT_BACKEND_URL;
 
-let socketInstance: Socket | null = null;
-
-// Custom Hook for WebSocket Connection
-const useSocketConnection = () => {
-  const socketRef = useRef<Socket | null>(null);
+// Socket Provider Component
+export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [socket, setSocket] = useState<Socket | null>(null);
   const { user } = useUser();
 
   useEffect(() => {
-    if (!socketInstance) {
-      socketInstance = io(SOCKET_SERVER_URL, { transports: ["websocket"] });
-      console.log("🔗 WebSocket Connected:", socketInstance.id);
+    if (!SOCKET_SERVER_URL) {
+      console.error("❌ Missing NEXT_PUBLIC_CHAT_BACKEND_URL in .env file");
+      return;
     }
 
-    socketRef.current = socketInstance;
+    const newSocket = io(SOCKET_SERVER_URL);
+    setSocket(newSocket);
 
-    socketInstance.on("connect", () => {
-      console.log("✅ Socket connected:", socketInstance?.id);
+    newSocket.on("connect", () => {
+      console.log("✅ WebSocket Connected:", newSocket.id);
+      
+      // Emit register event after connection
+      if (user) {
+        newSocket.emit("register", {
+          l1: 23,  // Including l1
+          l2: 79,  // Including l2
+          username: user.fullName || "Guest",
+          profileUrl: user.imageUrl || "fallback-image-url",
+        });
+        console.log("📤 Register event sent");
+      }
     });
 
-    if (user) {
-      socketInstance.emit("register", {
-        l1: 23,
-        l2: 79,
-        username: user.fullName || "Guest",
-        profileUrl: user.imageUrl || "fallback-image-url",
-        
-      });
-    }
+    newSocket.on("disconnect", () => {
+      console.log("❌ WebSocket Disconnected");
+    });
 
     return () => {
-      if (socketInstance && socketInstance.connected) {
-        socketInstance.disconnect();
-        console.log("❌ WebSocket Disconnected");
-        socketInstance = null;
-      }
+      newSocket.disconnect();
     };
   }, [user]);
 
-  return socketRef.current;
+  return <SocketContext.Provider value={{ socket }}>{children}</SocketContext.Provider>;
 };
 
-// SocketProvider Component
-export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const socket = useSocketConnection();
-
-  // Memoized value to prevent re-renders
-  const contextValue = useMemo(() => ({ socket }), [socket]);
-
-  return <SocketContext.Provider value={contextValue}>{children}</SocketContext.Provider>;
-};
-
-// Custom Hook to Use WebSocket
+// Custom Hook to Use Socket
 export const useSocket = (): SocketContextType => {
   const context = useContext(SocketContext);
   if (!context) {
