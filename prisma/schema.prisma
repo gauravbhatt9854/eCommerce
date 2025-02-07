@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Category {
-  id        String    @id @default(cuid())
+  id        String    @id @default(uuid())
   name      String    @unique
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -16,7 +16,7 @@ model Category {
 }
 
 model CustomerSupportMessage {
-  id                                           String   @id @default(cuid())
+  id                                           String   @id @default(uuid())
   senderId                                     String
   receiverId                                   String
   message                                      String
@@ -29,7 +29,7 @@ model CustomerSupportMessage {
 }
 
 model Order {
-  id                     String                   @id @default(cuid())
+  id                     String                   @id @default(uuid())
   clerkId                String
   userId                 String
   createdAt              DateTime                 @default(now())
@@ -56,7 +56,7 @@ model Order {
 }
 
 model Product {
-  id          String     @id @default(cuid())
+  id          String     @id @default(uuid())
   name        String
   description String
   price       Int
@@ -73,7 +73,7 @@ model Product {
 }
 
 model ReportedProblem {
-  id          String   @id @default(cuid())
+  id          String   @id @default(uuid())
   orderId     String
   userId      String
   category    String
@@ -86,7 +86,7 @@ model ReportedProblem {
 }
 
 model Review {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   userId    String
   productId String
   rating    Int      @default(5)
@@ -98,7 +98,7 @@ model Review {
 }
 
 model User {
-  id                                                             String                   @id
+  id                                                             String                   @id @default(uuid())
   clerkId                                                        String
   email                                                          String                   @unique
   name                                                           String
@@ -118,7 +118,7 @@ model User {
 }
 
 model Wishlist {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   userId    String
   productId String
   createdAt DateTime @default(now())

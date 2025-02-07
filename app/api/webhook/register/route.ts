@@ -75,6 +75,7 @@ export async function POST(req: Request) {
           name: dataOfUser.name,
           email: dataOfUser.email,
           phone: dataOfUser.phone,
+          
         },
       })
 
