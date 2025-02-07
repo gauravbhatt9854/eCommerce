@@ -2,9 +2,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppState } from "../provider/AppStateProvider";
-import ProductCard from "./ProductCard";
-import CategoryModal from "./CategoryModal";
-import ProductModal from "./ProductModal";
+import ProductCard from "./child/ProductCard";
+import CategoryModal from "./child/CategoryModal";
+import ProductModal from "./child/ProductModal";
  
 const ProductsPage = () => {
   const { isAdmin } = useAppState();
@@ -54,6 +54,7 @@ const ProductsPage = () => {
   };
 
   const handleNewProductSubmit = (product: any) => {
+    console.log("product adding running");
     const formData = new FormData();
     formData.append("name", product.name);
     formData.append("description", product.description);

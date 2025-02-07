@@ -50,7 +50,15 @@ const ProductModal = ({ isOpen, onClose, onSubmit, categories }: ProductModalPro
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-30">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 bg-red-500 text-white p-1 rounded-full w-6 h-6 flex items-center justify-center"
+        >
+          ✕
+        </button>
+        
         <h2 className="text-2xl font-semibold mb-4">Add New Product</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
