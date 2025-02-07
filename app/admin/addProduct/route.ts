@@ -52,6 +52,7 @@ const newProduct = await prisma.product.create({
     name: formData.get("name") as string,
     description: formData.get("description") as string,
     price: parseFloat(formData.get("price") as string),
+    categoryId :formData.get("categoryId") as string,
     imageUrls: fileUrls,  // Save the array of image URLs
   },
 });

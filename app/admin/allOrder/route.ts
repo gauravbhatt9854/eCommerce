@@ -5,13 +5,15 @@ import { isAuthorized } from "../checkPoint/route";
 
 export async function GET(req: NextRequest) {
     try {
-        if(!(await isAuthorized())) return NextResponse.json({ message: "access denied" }, { status: 400 });
+        if (!(await isAuthorized())) return NextResponse.json({ message: "access denied" }, { status: 400 });
 
         // Retrieve all orders where clerkId equals the userId
         const orders = await prisma.order.findMany({
             include: {
-                product: true,
-                user: true
+                Product: true,
+                User: true,
+                CustomerSupportMessage: true,
+                DeliveryPerson: true,
             },
         });
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import prisma from "@/lib/prisma"; // Adjust the import path based on your project structure
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
 // Generate the Razorpay signature for verification
 const generatedSignature = (
@@ -22,6 +23,7 @@ export async function POST(request: NextRequest) {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, DB_ORDER_ID } =
     await request.json();
 
+    console.log("Request body:", { razorpay_order_id, razorpay_payment_id, razorpay_signature, DB_ORDER_ID });
     // Verify the signature
     const signature = generatedSignature(razorpay_order_id, razorpay_payment_id);
     if (signature !== razorpay_signature) {
@@ -32,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch the order from the database using DB_ORDER_ID
-    const order = await prisma.order.findUnique({
+    const order = await prisma.order.findMany({
       where: { id: DB_ORDER_ID }, // Assuming the primary key is "id"
     });
 
@@ -44,7 +46,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if(order.razorpay_order_id !== razorpay_order_id) {
+    if(order[0].razorpay_order_id !== razorpay_order_id) {
       return NextResponse.json(
         { message: "Order not found", isOk: false },
         { status: 404 })
@@ -52,7 +54,7 @@ export async function POST(request: NextRequest) {
 
     const updatedOrder = await prisma.order.update({
       where: { id: DB_ORDER_ID },
-      data: { status: "SUCCESS",  razorpay_payment_id : razorpay_payment_id}, // Update status to "success"
+      data: { paymentStatus: "PAID",  razorpay_payment_id : razorpay_payment_id}, // Update status to "success"
     });
 
 

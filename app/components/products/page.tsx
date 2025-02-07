@@ -1,34 +1,25 @@
 "use client";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAdmin } from "../provider/AdminProvider";
-
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  imageUrls: string[];
-}
-
+import ProductCard from "./ProductCard";
+import CategoryModal from "./CategoryModal";
+import ProductModal from "./ProductModal";
+ 
 const ProductsPage = () => {
   const { isAdmin } = useAdmin();
   const router = useRouter();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    description: "",
-    price: "",
-    images: [] as File[],
-  });
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setIsLoading(true);
       try {
-        setIsLoading(true);
-        const res = await fetch("/api/products", { method: "POST" });
+        const res = await fetch("/api/products");
         const data = await res.json();
         setProducts(data);
       } catch (error) {
@@ -38,49 +29,47 @@ const ProductsPage = () => {
       }
     };
 
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/categories");
+        const data = await res.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
     fetchProducts();
-  }, [isModalOpen]);
-  
+    fetchCategories();
+  }, []);
 
-  const handleNewProductSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newProduct.images.length < 1) {
-      alert("Please upload at least one image.");
-      return;
-    }
-
-    try {
-      const formData = new FormData();
-      formData.append("name", newProduct.name);
-      formData.append("description", newProduct.description);
-      formData.append("price", newProduct.price);
-      newProduct.images.forEach((file, index) =>
-        formData.append("images", file, `image-${index + 1}`)
-      );
-
-      const res = await fetch("/admin/addProduct", { method: "POST", body: formData });
-
-      if (!res.ok) throw new Error("Failed to add new product");
-
-      setNewProduct({ name: "", description: "", price: "", images: [] });
-      setIsModalOpen(false);
-      alert("Product added successfully!");
-    } catch (error) {
-      console.error("Error adding new product:", error);
-      alert("Failed to add product. Please try again.");
-    }
+  const handleNewCategorySubmit = (categoryName: string) => {
+    fetch("/api/categories/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: categoryName }),
+    })
+      .then(() => alert("Category added successfully!"))
+      .catch(() => alert("Failed to add category."));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setNewProduct((prev) => ({
-        ...prev,
-        images: [...prev.images, ...Array.from(e.target.files)],
-      }));
-    }
-  };
+  const handleNewProductSubmit = (product: any) => {
+    const formData = new FormData();
+    formData.append("name", product.name);
+    formData.append("description", product.description);
+    formData.append("price", product.price);
+    formData.append("categoryId", product.categoryId);
+    product.images.forEach((file: File, index: number) => {
+      formData.append("images", file, `image-${index + 1}`);
+    });
 
-  const descHandler = (id: string) => router.push(`${window.location.pathname}/${id}`);
+    fetch("/admin/addProduct", {
+      method: "POST",
+      body: formData,
+    })
+      .then(() => alert("Product added successfully!"))
+      .catch(() => alert("Failed to add product."));
+  };
 
   if (isLoading)
     return (
@@ -94,106 +83,22 @@ const ProductsPage = () => {
       <h1 className="text-3xl font-bold text-center mb-8">Products</h1>
 
       {isAdmin && (
-        <div className="mb-8">
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600"
-          >
+        <div className="mb-8 space-x-4">
+          <button onClick={() => setIsCategoryModalOpen(true)} className="px-4 py-2 bg-blue-500 text-white rounded-md">Add Category</button>
+          <button onClick={() => setIsProductModalOpen(true)} className="px-4 py-2 bg-green-500 text-white rounded-md" disabled={!categories.length}>
             Add Product
           </button>
         </div>
       )}
 
-      {/* Modal for adding new product */}
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-30">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-2xl font-semibold mb-4">Add New Product</h2>
-            <form onSubmit={handleNewProductSubmit} className="space-y-4">
-              <input
-                type="text"
-                value={newProduct.name}
-                onChange={(e) => setNewProduct((prev) => ({ ...prev, name: e.target.value }))}
-                placeholder="Name"
-                required
-                className="border p-2 w-full rounded"
-              />
-              <textarea
-                value={newProduct.description}
-                onChange={(e) => setNewProduct((prev) => ({ ...prev, description: e.target.value }))}
-                placeholder="Description"
-                required
-                className="border p-2 w-full rounded"
-              />
-              <input
-                type="number"
-                step="0.01"
-                value={newProduct.price}
-                onChange={(e) => setNewProduct((prev) => ({ ...prev, price: e.target.value }))}
-                placeholder="Price"
-                required
-                className="border p-2 w-full rounded"
-              />
-              <input type="file" multiple accept="image/*" onChange={handleImageChange} className="border p-2 w-full rounded" />
-              <div className="flex justify-end space-x-4">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-gray-500 text-white rounded-md">
-                  Cancel
-                </button>
-                <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-md">
-                  Save
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <CategoryModal isOpen={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)} onSubmit={handleNewCategorySubmit} />
+      <ProductModal isOpen={isProductModalOpen} onClose={() => setIsProductModalOpen(false)} onSubmit={handleNewProductSubmit} categories={categories} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} descHandler={descHandler} />
+          <ProductCard key={product.id} product={product} descHandler={(id) => router.push(`/components/products//${id}`)} />
         ))}
       </div>
-    </div>
-  );
-};
-
-const ProductCard = ({ product, descHandler }: { product: Product; descHandler: (id: string) => void }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const nextImage = () => setCurrentIndex((prev) => (prev === product.imageUrls.length - 1 ? 0 : prev + 1));
-  const prevImage = () => setCurrentIndex((prev) => (prev === 0 ? product.imageUrls.length - 1 : prev - 1));
-
-  return (
-    <div className="bg-white shadow-md rounded-lg p-6">
-      <div className="relative w-full h-48 overflow-hidden rounded-md">
-        {product.imageUrls.length > 0 && (
-          <>
-            <img
-              src={product.imageUrls[currentIndex]}
-              alt={product.name}
-              className="w-full h-full object-cover rounded-md transition-transform duration-500"
-            />
-
-            {product.imageUrls.length > 1 && (
-              <>
-                <button onClick={prevImage} className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full">
-                  &#9664;
-                </button>
-                <button onClick={nextImage} className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full">
-                  &#9654;
-                </button>
-              </>
-            )}
-          </>
-        )}
-      </div>
-
-      <h2 className="text-xl font-semibold mt-4">{product.name}</h2>
-      <p className="text-gray-700 mt-2">{product.description}</p>
-      <p className="text-indigo-600 font-semibold mt-4">₹{product.price}</p>
-      <button onClick={() => descHandler(product.id)} className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded-md">
-        See Description
-      </button>
     </div>
   );
 };

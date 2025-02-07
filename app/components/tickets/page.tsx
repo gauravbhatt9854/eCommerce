@@ -11,10 +11,8 @@ interface Ticket {
   description: string;
   createdAt: string;
   status: string;
-  user: {
-    name: string;
-  };
-  order: any;
+  User: any;
+  Order: any;
 }
 
 const ReportsPage: React.FC = () => {
@@ -136,9 +134,9 @@ const ReportsPage: React.FC = () => {
           ) : (
             filteredReports.map((report) => (
               <div key={report.id} className="p-6 bg-white rounded-lg shadow-lg hover:shadow-xl">
-                <h2 className="text-xl font-semibold mb-4 text-gray-700">Report for Order #{report.order?.product?.name || "not found"}</h2>
+                <h2 className="text-xl font-semibold mb-4 text-gray-700">Report for Order #{report.Order?.Product?.name || "not found"}</h2>
                 <p className="text-gray-600">
-                  <span className="font-semibold">User:</span> {report.user.name}
+                  <span className="font-semibold">User:</span> {report.User.name}
                 </p>
                 <p className="text-gray-600">
                   <span className="font-semibold">Category:</span> {report.category}

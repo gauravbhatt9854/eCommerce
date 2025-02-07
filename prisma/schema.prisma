@@ -7,47 +7,69 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Category {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Product   Product[]
+}
+
+model CustomerSupportMessage {
+  id                                           String   @id @default(uuid())
+  senderId                                     String
+  receiverId                                   String
+  message                                      String
+  timestamp                                    DateTime @default(now())
+  orderId                                      String
+  status                                       String   @default("ACTIVE")
+  Order                                        Order    @relation(fields: [orderId], references: [id])
+  User_CustomerSupportMessage_receiverIdToUser User     @relation("CustomerSupportMessage_receiverIdToUser", fields: [receiverId], references: [id])
+  User_CustomerSupportMessage_senderIdToUser   User     @relation("CustomerSupportMessage_senderIdToUser", fields: [senderId], references: [id])
+}
+
 model Order {
-  id                  String                   @id @default(uuid())
-  clerkId             String
-  userId              String
-  productId           String
-  quantity            Int                      @default(1)
-  createdAt           DateTime                 @default(now())
-  updatedAt           DateTime                 @updatedAt
-  status              String                   @default("PENDING")
-  razorpay_order_id   String?
-  razorpay_payment_id String?
-  price               Int                      @default(0)
-  supportMessages     CustomerSupportMessage[]
-  product             Product                  @relation(fields: [productId], references: [id])
-  user                User                     @relation(fields: [userId], references: [id])
-  reportedProblems    ReportedProblem[]
+  id                     String                   @id @default(uuid())
+  clerkId                String
+  userId                 String
+  productId              String
+  quantity               Int                      @default(1)
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  razorpay_order_id      String?
+  razorpay_payment_id    String?
+  price                  Int                      @default(0)
+  discount               Int?                     @default(0)
+  totalAmount            Int                      @default(0)
+  tax                    Int?                     @default(0)
+  deliveryAddress        String?
+  deliveryDate           DateTime?
+  deliveryStatus         String                   @default("PENDING")
+  trackingId             String?
+  paymentStatus          String                   @default("PENDING")
+  deliveryPersonId       String?
+  CustomerSupportMessage CustomerSupportMessage[]
+  Product                Product                  @relation(fields: [productId], references: [id])
+  User                   User                     @relation("User",fields: [userId], references: [id])
+  ReportedProblem        ReportedProblem[]
+  DeliveryPerson         User?         @relation("DeliveryPerson",fields: [deliveryPersonId], references: [id])
 }
 
 model Product {
-  id          String   @id @default(uuid())
+  id          String     @id @default(uuid())
   name        String
   description String
   price       Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  discount    Int?       @default(0)
+  stock       Int        @default(0)
+  categoryId  String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   imageUrls   String[]
-  orders      Order[]
-}
-
-model User {
-  id               String                   @id @default(uuid())
-  clerkId          String
-  email            String                   @unique
-  name             String
-  phone            String?
-  createdAt        DateTime                 @default(now())
-  updatedAt        DateTime                 @updatedAt
-  messagesReceived CustomerSupportMessage[] @relation("Receiver")
-  messagesSent     CustomerSupportMessage[] @relation("Sender")
-  orders           Order[]
-  reportedProblems ReportedProblem[]
+  Order       Order[]
+  Category    Category   @relation(fields: [categoryId], references: [id])
+  Review      Review[]
+  Wishlist    Wishlist[]
 }
 
 model ReportedProblem {
@@ -58,19 +80,49 @@ model ReportedProblem {
   description String
   createdAt   DateTime @default(now())
   status      String   @default("PENDING")
-  order       Order    @relation(fields: [orderId], references: [id])
-  user        User     @relation(fields: [userId], references: [id])
+  updatedAt   DateTime @updatedAt
+  Order       Order    @relation(fields: [orderId], references: [id])
+  User        User     @relation(fields: [userId], references: [id])
 }
 
-model CustomerSupportMessage {
-  id         String   @id @default(uuid())
-  senderId   String
-  receiverId String
-  message    String
-  timestamp  DateTime @default(now())
-  orderId    String
-  status     String   @default("ACTIVE")
-  order      Order    @relation(fields: [orderId], references: [id])
-  receiver   User     @relation("Receiver", fields: [receiverId], references: [id])
-  sender     User     @relation("Sender", fields: [senderId], references: [id])
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  rating    Int      @default(5)
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Product   Product  @relation(fields: [productId], references: [id])
+  User      User     @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id                                                             String                   @id @default(uuid())
+  clerkId                                                        String
+  email                                                          String                   @unique
+  name                                                           String
+  phone                                                          String?
+  createdAt                                                      DateTime                 @default(now())
+  updatedAt                                                      DateTime                 @updatedAt
+  address                                                        String?
+  walletBalance                                                  Int?                     @default(0)
+  Role                                                           String                   @default("USER")
+  CustomerSupportMessage_CustomerSupportMessage_receiverIdToUser CustomerSupportMessage[] @relation("CustomerSupportMessage_receiverIdToUser")
+  CustomerSupportMessage_CustomerSupportMessage_senderIdToUser   CustomerSupportMessage[] @relation("CustomerSupportMessage_senderIdToUser")
+  Order                                                          Order[]                 @relation("User")
+  Order_Delivery_partner                                         Order[]                 @relation("DeliveryPerson")
+  ReportedProblem                                                ReportedProblem[]
+  Review                                                         Review[]
+  Wishlist                                                       Wishlist[]
+
+}
+
+model Wishlist {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  Product   Product  @relation(fields: [productId], references: [id])
+  User      User     @relation(fields: [userId], references: [id])
 }

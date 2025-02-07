@@ -14,7 +14,9 @@ interface Product {
   name: string;
   description: string;
   price: number;
-  imageUrls: string[]
+  totalAmount: number;
+  imageUrls: string[],
+  categoryId: string,
 }
 
 const Page = () => {
@@ -142,20 +144,27 @@ const Page = () => {
       const dbOrderData = {
         productId: params?.id, // Ensure `params?.id` is a string
         razorpay_order_id: order.id,
+        totalAmount: price,
         price: price,
         email: user?.emailAddresses[0]?.emailAddress,
       };
 
-      const dbOrder = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dbOrderData),
-      });
-
-      if (!dbOrder.ok) {
-        return alert("Failed to create order. Please try again.");
+      let dbOrderResponse: any;
+      try {
+        const dbOrder = await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dbOrderData),
+        });
+      
+        const res = await dbOrder.json();
+        dbOrderResponse = res;
+        console.log("Order Response:", res);
+      } catch (error) {
+        console.error("Error sending order:", error);
       }
-      const dbOrderResponse = await dbOrder.json();
+      
+      
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Ensure this is correctly set in .env

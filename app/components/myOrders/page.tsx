@@ -6,12 +6,14 @@ interface Order {
   id: string;
   userId: string;
   razorpay_order_id?: string;
-  product: { name: string };
+  Product: any;
   quantity: number;
   status: string;
   price: number;
+  totalAmount: number;
   createdAt: string;
   razorpay_payment_id?: string;
+  
 }
 
 const MyOrdersPage: React.FC = () => {
@@ -123,11 +125,14 @@ const MyOrdersPage: React.FC = () => {
               <h2 className="text-xl font-semibold mb-4 text-gray-700">
                 Order #{order.razorpay_order_id || "N/A"}
               </h2>
-              <p className="text-gray-600"><span className="font-semibold">Product:</span> {order.product.name}</p>
+              <p className="text-gray-600"><span className="font-semibold">Product:</span> {order.Product?.name}</p>
               <p className="text-gray-600"><span className="font-semibold">Quantity:</span> {order.quantity}</p>
-              <p className="text-gray-600"><span className="font-semibold">Payment Status:</span> {order.status}</p>
+              <p className="text-gray-600"><span className="font-semibold">Payment Status:</span> {order?.paymentStatus}</p>
+              <p className="text-gray-600"><span className="font-semibold">Delivery Status:</span> {order?.deliveryStatus}</p>
               <p className="text-gray-600"><span className="font-semibold">Price:</span> ${(order.price / 100).toFixed(2)}</p>
               <p className="text-gray-600"><span className="font-semibold">Order Date:</span> {new Date(order.createdAt).toLocaleDateString()}</p>
+              <p className="text-gray-600"><span className="font-semibold">Delivery Date:</span> {new Date(order?.deliveryDate).toLocaleDateString()}</p>
+              <p className="text-gray-600"><span className="font-semibold">Delivery Partner:</span> {order?.DeliveryPerson?.name}</p>
               {order.razorpay_payment_id && (
                 <p className="text-gray-600"><span className="font-semibold">Payment ID:</span> {order.razorpay_payment_id}</p>
               )}
@@ -150,7 +155,8 @@ const MyOrdersPage: React.FC = () => {
 
               {/* Render support box for the selected order */}
               {supportBoxOpen[order.id] && (
-                <div className="mt-4" ref={(el) => (supportBoxRef.current[order.id] = el)}>
+                <div className="mt-4" ref={(el) => (
+                  supportBoxRef.current[order.id] = el)}>
                   <SupportComponent orderId={order.id} customerId={order.userId} />
                 </div>
               )}

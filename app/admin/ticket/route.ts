@@ -11,11 +11,11 @@ export async function GET(req: NextRequest) {
     // Fetch the Tickets (reported problems) from the database
     const tickets = await prisma.reportedProblem.findMany({
       include: {
-        user: true,   // Include the related user details
-        order: 
+        User: true,   // Include the related user details
+        Order: 
         {
           include: {
-            product: true, // Include the related product details
+            Product: true, // Include the related product details
           }
         } // Include the related order details
       },
