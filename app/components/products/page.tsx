@@ -53,25 +53,6 @@ const ProductsPage = () => {
       .catch(() => alert("Failed to add category."));
   };
 
-  const handleNewProductSubmit = (product: any) => {
-    console.log("product adding running");
-    const formData = new FormData();
-    formData.append("name", product.name);
-    formData.append("description", product.description);
-    formData.append("price", product.price);
-    formData.append("categoryId", product.categoryId);
-    product.images.forEach((file: File, index: number) => {
-      formData.append("images", file, `image-${index + 1}`);
-    });
-
-    fetch("/admin/addProduct", {
-      method: "POST",
-      body: formData,
-    })
-      .then(() => alert("Product added successfully!"))
-      .catch(() => alert("Failed to add product."));
-  };
-
   if (isLoading)
     return (
       <div className="flex justify-center items-center h-screen">
@@ -93,7 +74,7 @@ const ProductsPage = () => {
       )}
 
       <CategoryModal isOpen={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)} onSubmit={handleNewCategorySubmit} />
-      <ProductModal isOpen={isProductModalOpen} onClose={() => setIsProductModalOpen(false)} onSubmit={handleNewProductSubmit} categories={categories} />
+      <ProductModal isOpen={isProductModalOpen} onClose={() => setIsProductModalOpen(false)} categories={categories} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((product) => (

@@ -3,11 +3,10 @@ import { useState } from "react";
 interface ProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (product: any) => void;
   categories: { id: string; name: string }[];
 }
 
-const ProductModal = ({ isOpen, onClose, onSubmit, categories }: ProductModalProps) => {
+const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
   const [newProduct, setNewProduct] = useState({
     name: "",
     description: "",
@@ -17,6 +16,37 @@ const ProductModal = ({ isOpen, onClose, onSubmit, categories }: ProductModalPro
     categoryId: "",
     images: [] as File[],
   });
+
+  const handleNewProductSubmit = async (product: any) => {
+    try {
+      console.log("product adding running");
+  
+      const formData = new FormData();
+      formData.append("name", product.name);
+      formData.append("description", product.description);
+      formData.append("price", product.price);
+      formData.append("categoryId", product.categoryId);
+  
+      product.images.forEach((file: File, index: number) => {
+        formData.append("images", file, `image-${index + 1}`);
+      });
+  
+      const response = await fetch("/admin/addProduct", {
+        method: "POST",
+        body: formData,
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to add product");
+      }
+  
+      alert("Product added successfully!");
+    } catch (error) {
+      console.error("Error adding product:", error);
+      alert("Failed to add product.");
+    }
+  };
+  
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files as FileList | null; // Explicitly define files
@@ -30,13 +60,13 @@ const ProductModal = ({ isOpen, onClose, onSubmit, categories }: ProductModalPro
   
   
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
     if (newProduct.images.length < 1) {
       alert("Please upload at least one image.");
       return;
     }
-    onSubmit(newProduct);
+    await handleNewProductSubmit(newProduct);
     setNewProduct({
       name: "",
       description: "",
