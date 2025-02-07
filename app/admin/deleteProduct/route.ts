@@ -51,7 +51,8 @@ async function deleteImagesFromMinIO(imageUrls: string[]) {
       await deleteImagesFromMinIO(product.imageUrls);
   
       // Delete the product from the database
-      await prisma.product.delete({
+      console.log(`Deleting product with ID: ${id}`);
+      await prisma.product.deleteMany({
         where: { id: String(id) },
       });
   
