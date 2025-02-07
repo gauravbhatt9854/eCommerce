@@ -19,13 +19,16 @@ const ProductModal = ({ isOpen, onClose, onSubmit, categories }: ProductModalPro
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
+    const files = e.target.files as FileList | null; // Explicitly define files
+    if (files && files.length > 0) {
       setNewProduct((prev) => ({
         ...prev,
-        images: [...prev.images, ...Array.from(e.target.files)],
+        images: [...prev.images, ...Array.from(files)],
       }));
     }
   };
+  
+  
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
