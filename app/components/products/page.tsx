@@ -1,13 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAdmin } from "../provider/AdminProvider";
+import { useAppState } from "../provider/AppStateProvider";
 import ProductCard from "./ProductCard";
 import CategoryModal from "./CategoryModal";
 import ProductModal from "./ProductModal";
  
 const ProductsPage = () => {
-  const { isAdmin } = useAdmin();
+  const { isAdmin } = useAppState();
   const router = useRouter();
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);

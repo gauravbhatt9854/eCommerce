@@ -12,14 +12,17 @@ import {
 import { UserButton } from '@clerk/nextjs'
 import { Button } from "../..//TEMP/ui/button"
 import Link from "next/link"
-import { useAdmin } from "../provider/AdminProvider"
-import { useSocket } from "../provider/SocketProvider"
+import { useAppState } from "../provider/AppStateProvider"
 
 
 
 const Nav = () => {
-  const { setIsChat } = useSocket();
-  const { isAdmin } = useAdmin();
+  const { setIsChat , user} = useAppState();
+  if(!user){
+    return null;
+  }
+  const { isAdmin } = useAppState();
+
   return (
     <div className="flex justify-between -600 py-4 px-10">
       <UserButton />

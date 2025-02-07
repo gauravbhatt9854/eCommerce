@@ -9,7 +9,7 @@ export async function POST() {
     else
       return NextResponse.json({ isAdmin: false })
   } catch (error) {
-    console.log("error in checkadmin service")
+    console.log("error with isAdmin service")
     return NextResponse.json({ isAdmin: false })
 
   }

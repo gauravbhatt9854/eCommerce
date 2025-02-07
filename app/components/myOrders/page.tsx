@@ -1,20 +1,7 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
 import SupportComponent from "../tickets/chatPage/page";
-
-interface Order {
-  id: string;
-  userId: string;
-  razorpay_order_id?: string;
-  Product: any;
-  quantity: number;
-  status: string;
-  price: number;
-  totalAmount: number;
-  createdAt: string;
-  razorpay_payment_id?: string;
-  
-}
+import { Order } from "@prisma/client";
 
 const MyOrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -139,7 +126,8 @@ const MyOrdersPage: React.FC = () => {
 
               {/* Button to toggle support box */}
               <button 
-                className="mt-4 w-full py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors duration-300"
+                className={`mt-4 w-full py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors duration-300
+                  ${order?.ReportedProblem?.length > 0 ? "block" : "hidden"}`}
                 onClick={() => toggleSupportBox(order.id)}
               >
                 {supportBoxOpen[order.id] ? "Close Support Chat" : "Open Support Chat"}
@@ -147,7 +135,8 @@ const MyOrdersPage: React.FC = () => {
 
               {/* Button to toggle ticket reporting modal */}
               <button
-                className="mt-4 w-full py-2 px-4 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition-colors duration-300"
+                className={`mt-4 w-full py-2 px-4 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition-colors duration-300
+                  ${order?.ReportedProblem?.length > 0 ? "hidden" : ""}`}
                 onClick={() => toggleReportProblemModal(order.id)}
               >
                 Report Problem

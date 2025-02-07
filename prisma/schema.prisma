@@ -49,10 +49,10 @@ model Order {
   paymentStatus          String                   @default("PENDING")
   deliveryPersonId       String?
   CustomerSupportMessage CustomerSupportMessage[]
+  DeliveryPerson         User?                    @relation("Order_deliveryPersonIdToUser", fields: [deliveryPersonId], references: [id])
   Product                Product                  @relation(fields: [productId], references: [id])
-  User                   User                     @relation("User",fields: [userId], references: [id])
+  User                   User                     @relation("Order_userIdToUser", fields: [userId], references: [id])
   ReportedProblem        ReportedProblem[]
-  DeliveryPerson         User?         @relation("DeliveryPerson",fields: [deliveryPersonId], references: [id])
 }
 
 model Product {
@@ -110,12 +110,11 @@ model User {
   Role                                                           String                   @default("USER")
   CustomerSupportMessage_CustomerSupportMessage_receiverIdToUser CustomerSupportMessage[] @relation("CustomerSupportMessage_receiverIdToUser")
   CustomerSupportMessage_CustomerSupportMessage_senderIdToUser   CustomerSupportMessage[] @relation("CustomerSupportMessage_senderIdToUser")
-  Order                                                          Order[]                 @relation("User")
-  Order_Delivery_partner                                         Order[]                 @relation("DeliveryPerson")
+  Order_Order_deliveryPersonIdToUser                             Order[]                  @relation("Order_deliveryPersonIdToUser")
+  Order_Order_userIdToUser                                       Order[]                  @relation("Order_userIdToUser")
   ReportedProblem                                                ReportedProblem[]
   Review                                                         Review[]
   Wishlist                                                       Wishlist[]
-
 }
 
 model Wishlist {

@@ -1,21 +1,18 @@
 import { ClerkProvider, ClerkLoaded, ClerkLoading } from '@clerk/nextjs'
 import './globals.css'
 import { dark } from '@clerk/themes'
-import Script from 'next/script'
 import Nav from './components/nav/page'
-import { AdminProvider } from './components/provider/AdminProvider'
-import { SocketProvider } from './components/provider/SocketProvider'
+import { AppStateProvider } from './components/provider/AppStateProvider'
 import ChatComponent from './components/globalChat/page'
 
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <AdminProvider>
-      <ClerkProvider
-        appearance={{
-          baseTheme: dark,
-        }}>
-        <SocketProvider>
+    <ClerkProvider
+      appearance={{
+        baseTheme: dark,
+      }}>
+      <AppStateProvider>
           <html lang="en">
             <body className='relative'>
               <ChatComponent />
@@ -30,9 +27,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </ClerkLoaded>
             </body>
           </html>
-        </SocketProvider>
-      </ClerkProvider>
-    </AdminProvider>
+      </AppStateProvider>
+    </ClerkProvider>
 
   )
 }

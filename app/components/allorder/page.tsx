@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import {Order}  from  "prisma/client";
 
 const AdminOrdersPage = () => {
   const [orders, setOrders] = useState([]);

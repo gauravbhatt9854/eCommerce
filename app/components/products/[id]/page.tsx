@@ -7,26 +7,17 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
-import { useAdmin } from "../../provider/AdminProvider";
-
-
-interface Product {
-  name: string;
-  description: string;
-  price: number;
-  totalAmount: number;
-  imageUrls: string[],
-  categoryId: string,
-}
+import { useAppState } from "../../provider/AppStateProvider"
+import { Product } from '@prisma/client'
 
 const Page = () => {
-  const {isAdmin} = useAdmin();
+  const { isAdmin } = useAppState();
   const params = useParams();
   const { user } = useUser();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false); // To toggle product edit mode
-  const [editedProduct, setEditedProduct] = useState<Product | null>(null); // For handling edited values
+  const [editedProduct, setEditedProduct] = useState<Product>(); // For handling edited values
   const router = useRouter();
 
   // Fetch product details
@@ -60,14 +51,14 @@ const Page = () => {
   }, [params?.id]);
 
   // Handle product editing
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditChange = (e:any) => {
     const { name, value } = e.target;
-    setEditedProduct((prev) => (prev ? { ...prev, [name]: value } : null));
+    setEditedProduct((prev: any) => (prev ? { ...prev, [name]: value } : null));
   };
 
   const handleSaveChanges = async () => {
     if (!editedProduct) return; // Ensure the product ID is set
-    setEditedProduct((prev) => (prev ? { ...prev, id: params?.id } : null));
+    setEditedProduct((prev: any) => (prev ? { ...prev, id: params?.id } : null));
     try {
       const res = await fetch(`/admin/editProduct`, {
         method: "PUT",
@@ -156,15 +147,15 @@ const Page = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(dbOrderData),
         });
-      
+
         const res = await dbOrder.json();
         dbOrderResponse = res;
         console.log("Order Response:", res);
       } catch (error) {
         console.error("Error sending order:", error);
       }
-      
-      
+
+
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Ensure this is correctly set in .env
@@ -291,7 +282,7 @@ const Page = () => {
                   <textarea
                     name="description"
                     value={editedProduct?.description || ""}
-                    onChange={handleEditChange}
+                    onChange={(e) => editedProduct && handleEditChange(e)}
                     className="w-full p-4 mb-4 border rounded-lg focus:ring-2 focus:ring-green-500"
                     placeholder="Product Description"
                   />
@@ -321,7 +312,7 @@ const Page = () => {
               )}
 
               {/* Payment Button */}
-              {!isEditing  && (
+              {!isEditing && (
                 <button
                   onClick={handlePayment}
                   disabled={loading}
@@ -340,10 +331,6 @@ const Page = () => {
         )}
       </div>
     </div>
-
-
-
-
   );
 };
 

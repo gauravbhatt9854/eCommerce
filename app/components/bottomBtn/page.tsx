@@ -1,8 +1,8 @@
 "use client"
-import { useSocket } from "../provider/SocketProvider";
+import { useAppState } from "../provider/SocketProvider";
 
 const BottomBtn = () => {
-    const { isChat, setIsChat } = useSocket();
+    const { isChat, setIsChat } = useAppState();
 
     return (
         <button
