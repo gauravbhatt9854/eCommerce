@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Category {
-  id        String    @id @default(uuid())
+  id        String    @id @default(cuid())
   name      String    @unique
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -16,7 +16,7 @@ model Category {
 }
 
 model CustomerSupportMessage {
-  id                                           String   @id @default(uuid())
+  id                                           String   @id @default(cuid())
   senderId                                     String
   receiverId                                   String
   message                                      String
@@ -29,7 +29,7 @@ model CustomerSupportMessage {
 }
 
 model Order {
-  id                     String                   @id @default(uuid())
+  id                     String                   @id @default(cuid())
   clerkId                String
   userId                 String
   createdAt              DateTime                 @default(now())
@@ -49,14 +49,14 @@ model Order {
   productId              String?
   quantity               Int                      @default(1)
   CustomerSupportMessage CustomerSupportMessage[]
-  DeliveryPerson         User?                    @relation("Order_deliveryPersonIdToUser", fields: [deliveryPersonId], references: [id])
+  DeliveryPerson         User?                    @relation("DeliveryPerson", fields: [deliveryPersonId], references: [id])
   Product                Product?                 @relation(fields: [productId], references: [id])
-  User                   User                     @relation("Order_userIdToUser", fields: [userId], references: [id])
+  User                   User                     @relation("User", fields: [userId], references: [id])
   ReportedProblem        ReportedProblem[]
 }
 
 model Product {
-  id          String     @id @default(uuid())
+  id          String     @id @default(cuid())
   name        String
   description String
   price       Int
@@ -73,7 +73,7 @@ model Product {
 }
 
 model ReportedProblem {
-  id          String   @id @default(uuid())
+  id          String   @id @default(cuid())
   orderId     String
   userId      String
   category    String
@@ -86,7 +86,7 @@ model ReportedProblem {
 }
 
 model Review {
-  id        String   @id @default(uuid())
+  id        String   @id @default(cuid())
   userId    String
   productId String
   rating    Int      @default(5)
@@ -98,7 +98,7 @@ model Review {
 }
 
 model User {
-  id                                                             String                   @id @default(uuid())
+  id                                                             String                   @id
   clerkId                                                        String
   email                                                          String                   @unique
   name                                                           String
@@ -110,15 +110,15 @@ model User {
   Role                                                           String                   @default("USER")
   CustomerSupportMessage_CustomerSupportMessage_receiverIdToUser CustomerSupportMessage[] @relation("CustomerSupportMessage_receiverIdToUser")
   CustomerSupportMessage_CustomerSupportMessage_senderIdToUser   CustomerSupportMessage[] @relation("CustomerSupportMessage_senderIdToUser")
-  Order_Order_deliveryPersonIdToUser                             Order[]                  @relation("Order_deliveryPersonIdToUser")
-  Order_Order_userIdToUser                                       Order[]                  @relation("Order_userIdToUser")
+  DeliveryPerson                                                 Order[]                  @relation("DeliveryPerson")
+  User                                                           Order[]                  @relation("User")
   ReportedProblem                                                ReportedProblem[]
   Review                                                         Review[]
   Wishlist                                                       Wishlist[]
 }
 
 model Wishlist {
-  id        String   @id @default(uuid())
+  id        String   @id @default(cuid())
   userId    String
   productId String
   createdAt DateTime @default(now())
