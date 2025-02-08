@@ -16,7 +16,8 @@ const AdminOrdersPage = () => {
       try {
         const response = await fetch("/admin/allOrder");
         if (!response.ok) {
-          throw new Error("Failed to fetch orders");
+          setError("An error occurred. Please try again");
+          return;
         }
         const data = await response.json();
         setOrders(data);

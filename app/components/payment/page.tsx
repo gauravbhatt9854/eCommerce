@@ -28,7 +28,8 @@ const Page = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch order details");
+        alert("Failed to fetch order details");
+        return;
       }
 
       const order = await response.json();
