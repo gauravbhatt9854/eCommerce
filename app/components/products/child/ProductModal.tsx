@@ -19,8 +19,9 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
 
   const handleNewProductSubmit = async (product: any) => {
     try {
-      console.log("product adding running");
+      console.log("🚀 Adding new product...");
   
+      // Create FormData object
       const formData = new FormData();
       formData.append("name", product.name);
       formData.append("description", product.description);
@@ -31,21 +32,33 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
         formData.append("images", file, `image-${index + 1}`);
       });
   
+      // Send request to backend
       const response = await fetch("/admin/addProduct", {
         method: "POST",
         body: formData,
       });
   
+      // Log response status
+      console.log(`📡 Server Response: ${response.status} ${response.statusText}`);
+  
+      // Try to parse JSON response
+      const responseData = await response.json();
+  
       if (!response.ok) {
-        throw new Error("Failed to add product");
+        console.error("❌ Backend Error:", responseData);
+        alert(`Failed to add product! Server says: ${responseData.error || "Unknown error"}`);
+        return;
       }
   
-      alert("Product added successfully!");
+      console.log("✅ Product added successfully:", responseData);
+      alert("🎉 Product added successfully!");
+  
     } catch (error) {
-      console.error("Error adding product:", error);
-      alert("Failed to add product.");
+      console.error("🚨 Network or Unexpected Error:", error);
+      alert("⚠️ Error adding product. Check console for details.");
     }
   };
+  
   
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
