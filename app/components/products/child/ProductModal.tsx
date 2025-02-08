@@ -1,3 +1,5 @@
+"use client"
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface ProductModalProps {
@@ -7,6 +9,8 @@ interface ProductModalProps {
 }
 
 const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const [newProduct, setNewProduct] = useState({
     name: "",
     description: "",
@@ -19,9 +23,9 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
 
   const handleNewProductSubmit = async (product: any) => {
     try {
+      setIsLoading(true);
       console.log("🚀 Adding new product...");
   
-      // Create FormData object
       const formData = new FormData();
       formData.append("name", product.name);
       formData.append("description", product.description);
@@ -32,16 +36,13 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
         formData.append("images", file, `image-${index + 1}`);
       });
   
-      // Send request to backend
       const response = await fetch("/admin/addProduct", {
         method: "POST",
         body: formData,
       });
   
-      // Log response status
       console.log(`📡 Server Response: ${response.status} ${response.statusText}`);
   
-      // Try to parse JSON response
       const responseData = await response.json();
   
       if (!response.ok) {
@@ -52,17 +53,17 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
   
       console.log("✅ Product added successfully:", responseData);
       alert("🎉 Product added successfully!");
-  
+      router.push(`/components/products/${responseData.product.id}`);
     } catch (error) {
       console.error("🚨 Network or Unexpected Error:", error);
       alert("⚠️ Error adding product. Check console for details.");
+    } finally {
+      setIsLoading(false);
     }
   };
-  
-  
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files as FileList | null; // Explicitly define files
+    const files = e.target.files as FileList | null;
     if (files && files.length > 0) {
       setNewProduct((prev) => ({
         ...prev,
@@ -70,10 +71,8 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
       }));
     }
   };
-  
-  
 
-  const handleSubmit = async(e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newProduct.images.length < 1) {
       alert("Please upload at least one image.");
@@ -97,14 +96,12 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-30">
       <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-3 right-3 bg-red-500 text-white p-1 rounded-full w-6 h-6 flex items-center justify-center"
         >
           ✕
         </button>
-        
         <h2 className="text-2xl font-semibold mb-4">Add New Product</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
@@ -159,8 +156,12 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
               </div>
             )}
           </div>
-          <button type="submit" className="px-4 py-2 bg-green-500 text-white rounded-md">
-            Save
+          <button
+            type="submit"
+            className="px-4 py-2 bg-green-500 text-white rounded-md"
+            disabled={isLoading}
+          >
+            {isLoading ? "Saving..." : "Save"}
           </button>
         </form>
       </div>
