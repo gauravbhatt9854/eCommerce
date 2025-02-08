@@ -24,4 +24,4 @@ RUN npx prisma generate
 EXPOSE 3000
 
 # Step 8: Run the Next.js app
-CMD ["npm","run", "dev"]
+CMD ["npm","run", "start"]
