@@ -15,10 +15,10 @@ async function deleteImagesFromMinIO(imageUrls: string[]) {
       try {
         // Delete the image from MinIO
         await minioClient.removeObject(bucket, objectKey);
-        console.log(`Successfully deleted image: ${objectKey}`);
+        // console.log(`Successfully deleted image: ${objectKey}`);
       } catch (error) {
-        console.error(`Error deleting image ${objectKey}:`, error);
-        throw new Error("Failed to delete images from MinIO");
+        // console.error(`Error deleting image ${objectKey}:`, error);
+        return NextResponse.json({ message: "Missing s3 storage" }, { status: 500 });
       }
     }
   }
@@ -51,7 +51,7 @@ async function deleteImagesFromMinIO(imageUrls: string[]) {
       await deleteImagesFromMinIO(product.imageUrls);
   
       // Delete the product from the database
-      console.log(`Deleting product with ID: ${id}`);
+      // console.log(`Deleting product with ID: ${id}`);
       await prisma.product.deleteMany({
         where: { id: String(id) },
       });

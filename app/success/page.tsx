@@ -7,7 +7,6 @@ const SuccessPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    console.log("Payment was successful!");
   }, []);
 
   return (

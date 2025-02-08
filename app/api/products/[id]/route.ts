@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const { id } = await req.json();
-    console.log("params in backend for specific product" , id);
+
 
     // Fetch product by the provided id using Prisma
     const product = await prisma.product.findUnique({
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
 
     // If the product is found, return it
     if (product) {
-        console.log("product found", product);
+
       return NextResponse.json(product, { status: 200 });
     } else {
       // If no product is found with the given ID, return a 404 response

@@ -18,7 +18,6 @@ export async function GET(req: NextRequest) {
         });
 
 
-        console.log(orders);
         if (orders) {
             return NextResponse.json(orders, { status: 200 });
         }

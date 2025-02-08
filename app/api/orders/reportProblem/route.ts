@@ -5,7 +5,6 @@ export async function POST(req: NextRequest) {
   try {
     // Parse JSON from the request body
     const { orderId, category, description, userId } = await req.json();
-    console.log({ orderId, category, description, userId });
 
     // Validate input data
     if (!orderId || !category || !description || !userId) {

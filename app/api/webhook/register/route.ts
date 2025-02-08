@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     const newData = data as UserJSON;
 
     const val: Val = await sendAccountCreationEmail(data);
-    console.log(val?.message)
+
     if (val?.message !== 'Email sent') return NextResponse.json({ message: 'Email not sent', isOk: false }, { status: 400 });
 
     const dataOfUser =
@@ -80,7 +80,6 @@ export async function POST(req: Request) {
       })
 
       if (user) {
-        console.log(user)
         return NextResponse.json(
           { user, isOk: true },
           { status: 200 }
@@ -126,11 +125,8 @@ export async function POST(req: Request) {
       });
 
       const val: Val = await sendAccountDeletionEmail(tempUser[0]);
-      console.log(val?.message)
       if (val?.message !== 'Email sent') return NextResponse.json({ message: 'Email not sent', isOk: false }, { status: 400 });
 
-
-      console.log(`Deleted user and orders for clerkId: ${clerkId}`);
     } catch (error) {
       console.error('Error deleting user and associated orders:', error);
       return new Response('Error: Failed to delete user and associated orders', {

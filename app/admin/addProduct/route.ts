@@ -25,13 +25,13 @@ async function uploadFileToMinIO(fileBuffer: Buffer, fileName: string): Promise<
   const bucket = process.env.MINIO_BUCKET || "bucket01";
 
   try {
-    console.log(`Uploading file to MinIO: ${fileName}`);
+    // console.log(`Uploading file to MinIO: ${fileName}`);
     await minioClient.putObject(bucket, fileName, fileBuffer, fileBuffer.length, {
       "Content-Type": "image/jpeg",
     });
 
     const fileUrl = await minioClient.presignedGetObject(bucket, fileName);
-    console.log(`File uploaded successfully: ${fileUrl}`);
+    // console.log(`File uploaded successfully: ${fileUrl}`);
     return fileUrl;
   } catch (error) {
     console.error("MinIO Upload Error:", error);

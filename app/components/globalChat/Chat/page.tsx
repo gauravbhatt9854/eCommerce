@@ -27,7 +27,6 @@ const Chat: React.FC = () => {
     }
 
     const handleNewMessage = (data: Message) => {
-      console.log("Received message:", data); // Debug log
       setMessages((prevMessages) => [...prevMessages, data]);
     };
 
@@ -50,7 +49,7 @@ const Chat: React.FC = () => {
         timestamp: Date.now(),
         profileUrl: user?.profileUrl || "",
       };
-      console.log("Sent message:", selfMsg); // Debug log
+      // console.log("Sent message:", selfMsg); // Debug log
       setMessages((prevMessages) => [...prevMessages, selfMsg]);
       setMessage("");
     }

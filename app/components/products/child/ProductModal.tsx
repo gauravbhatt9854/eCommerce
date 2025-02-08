@@ -24,7 +24,6 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
   const handleNewProductSubmit = async (product: any) => {
     try {
       setIsLoading(true);
-      console.log("🚀 Adding new product...");
   
       const formData = new FormData();
       formData.append("name", product.name);
@@ -41,7 +40,6 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
         body: formData,
       });
   
-      console.log(`📡 Server Response: ${response.status} ${response.statusText}`);
   
       const responseData = await response.json();
   
@@ -50,8 +48,7 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
         alert(`Failed to add product! Server says: ${responseData.error || "Unknown error"}`);
         return;
       }
-  
-      console.log("✅ Product added successfully:", responseData);
+      
       alert("🎉 Product added successfully!");
       router.push(`/components/products/${responseData.product.id}`);
     } catch (error) {

@@ -27,7 +27,8 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setSocket(newSocket);
 
     newSocket.on("connect", () => {
-      console.log("✅ WebSocket Connected:", newSocket.id);
+      // console.log("✅ WebSocket Connected:", newSocket.id);
+      // console.log("✅ WebSocket Connected:");
       
       // Emit register event after connection
       if (user) {

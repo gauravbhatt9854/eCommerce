@@ -57,7 +57,6 @@ const Page = () => {
           });
 
           const verificationResult = await verificationResponse.json();
-          console.log("Verification Result:", verificationResult);
           router.push("/success");
         },
         prefill: {

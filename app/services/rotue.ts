@@ -56,7 +56,6 @@ async function sendAccountCreationEmail(data: WebhookEvent['data']) {
   try {
     const ans = await auth_.sendMail(receiver);
     if (ans) {
-      console.log('Email sent');
       return { message: 'Email sent' };
     }
   } catch (error) {
@@ -113,7 +112,6 @@ async function sendAccountDeletionEmail(tempUser: {
     try {
       const ans = await auth_.sendMail(receiver);
       if (ans) {
-        console.log(`Account deletion email sent to ${user.email}`);
         return { message: 'Email sent' };
       }
     } catch (error) {

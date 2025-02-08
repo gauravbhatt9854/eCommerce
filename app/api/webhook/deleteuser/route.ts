@@ -45,13 +45,11 @@ export async function POST(req: Request) {
   }
 
   const eventType = evt.type;
-  console.log(`Received event type: ${eventType}`);
 
   const { data } = evt;
 
 
   if (eventType === 'user.deleted') {
-    console.log("data ",data);
     const { id: userId } = data;
 
 
@@ -69,8 +67,7 @@ export async function POST(req: Request) {
           id: userId,
         },
       });
-
-      console.log(`Deleted user and orders for user ID: ${userId}`);
+      
     } catch (error) {
       console.error('Error deleting user and associated orders:', error);
       return new Response('Error: Failed to delete user and associated orders', {
@@ -79,6 +76,5 @@ export async function POST(req: Request) {
     }
   }
 
-  console.log('Webhook processing completed');
   return NextResponse.json('Webhook received', { status: 200 });
 }

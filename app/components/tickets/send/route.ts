@@ -22,11 +22,6 @@ export async function POST(req: NextRequest) {
     const alternateReceiverId = receiverId || process.env.SUPPORT_ID;
     const alternateSenderId = senderId || process.env.SUPPORT_ID;
 
-    console.log("senderId:", alternateSenderId, typeof alternateSenderId);
-    console.log("receiverId:", alternateReceiverId, typeof alternateReceiverId);
-    console.log("message:", message, typeof message);
-    console.log("orderId:", orderId, typeof orderId);
-
     if (!alternateReceiverId || !alternateSenderId) {
       return NextResponse.json({ message: "Receiver and sender IDs are required" }, { status: 400 });
     }

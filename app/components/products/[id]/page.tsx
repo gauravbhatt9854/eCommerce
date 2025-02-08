@@ -150,7 +150,6 @@ const Page = () => {
 
         const res = await dbOrder.json();
         dbOrderResponse = res;
-        console.log("Order Response:", res);
       } catch (error) {
         console.error("Error sending order:", error);
       }
@@ -181,7 +180,7 @@ const Page = () => {
             });
 
             const verificationResult = await verificationResponse.json();
-            console.log("Verification Result:", verificationResult);
+            // console.log("Verification Result:", verificationResult);
 
             router.push("/success");
           } catch (error) {

@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 
     // Parse the request body
     const body = await req.json();
-    console.log("Raw Request Body:", body);
+    // console.log("Raw Request Body:", body);
 
     if (!body) {
       return NextResponse.json({ message: "Request body is empty" }, { status: 400 });
@@ -22,13 +22,6 @@ export async function POST(req: NextRequest) {
 
     const { productId, price, email, razorpay_order_id, totalAmount } = body;
 
-    // Log received data types
-    console.log("productId:", productId, typeof productId);
-    console.log("price:", price, typeof price);
-    console.log("email:", email, typeof email);
-    console.log("razorpay_order_id:", razorpay_order_id, typeof razorpay_order_id);
-    console.log("totalAmount:", totalAmount, typeof totalAmount);
-    console.log("clerkId:", clerkId, typeof clerkId);
 
     // Validate required fields
     if (!productId || typeof productId !== "string") {
@@ -66,7 +59,7 @@ export async function POST(req: NextRequest) {
     });
 
 
-    console.log("Order Created Successfully:", order);
+    // console.log("Order Created Successfully:", order);
 
     return NextResponse.json({ message: "Order created", orderId: order.id }, { status: 201 });
   } catch (error) {

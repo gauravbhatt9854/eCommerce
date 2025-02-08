@@ -5,7 +5,6 @@ import { currentUser } from '@clerk/nextjs/server'
 export async function POST(req: NextRequest) {
     const Clerkuser = await currentUser()
     const { name, email, phone } = await req.json()
-    console.log(name, email, phone);
     try {
         const user = await prisma.user.create({
             data: {
@@ -17,7 +16,6 @@ export async function POST(req: NextRequest) {
         })
         if(user) 
         {
-            console.log(user)
             return NextResponse.json(
                 { user, isOk: true },
                 { status: 200 }
