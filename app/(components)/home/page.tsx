@@ -2,7 +2,7 @@
 const HomePage = () => {
   const handleStartShopping = () => {
     // Redirect to the products page or any other shopping page
-    window.location.href = "/components/products";
+    window.location.href = "/products";
   };
 
   return (

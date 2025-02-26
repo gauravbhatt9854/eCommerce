@@ -20,6 +20,7 @@ const ProductsPage = () => {
       setIsLoading(true);
       try {
         const res = await fetch("/api/products");
+        if(!res.ok) console.log("Failed to fetch products");
         const data = await res.json();
         setProducts(data);
       } catch (error) {
@@ -32,6 +33,7 @@ const ProductsPage = () => {
     const fetchCategories = async () => {
       try {
         const res = await fetch("/api/categories");
+        if(!res.ok) console.log("Failed to fetch categories");
         const data = await res.json();
         setCategories(data);
       } catch (error) {
@@ -78,7 +80,7 @@ const ProductsPage = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} descHandler={(id) => router.push(`/components/products//${id}`)} />
+          <ProductCard key={product.id} product={product} descHandler={(id) => router.push(`/products//${id}`)} />
         ))}
       </div>
     </div>

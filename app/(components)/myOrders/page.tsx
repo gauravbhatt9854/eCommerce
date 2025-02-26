@@ -22,7 +22,8 @@ const MyOrdersPage: React.FC = () => {
       try {
         const response = await fetch("/api/orders/myOrders");
         if (!response.ok) {
-          throw new Error("Failed to fetch orders");
+          console.log("Failed to fetch orders");
+          return;
         }
         const data: Order[] = await response.json();
         setOrders(data);

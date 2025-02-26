@@ -1,9 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {Order}  from  "prisma/client";
+import { Prisma } from "@prisma/client";
+
+type Order = Prisma.OrderGetPayload<{ include: { User: true; Product: true; DeliveryPerson: true } }>;
 
 const AdminOrdersPage = () => {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [paymentFilter, setPaymentFilter] = useState("ALL");
@@ -16,7 +18,7 @@ const AdminOrdersPage = () => {
       try {
         const response = await fetch("/admin/allOrder");
         if (!response.ok) {
-          setError("An error occurred. Please try again");
+          console.log("An error occurred. Please try again");
           return;
         }
         const data = await response.json();
@@ -84,8 +86,8 @@ const AdminOrdersPage = () => {
               <p className="text-gray-600"><span className="font-semibold">Delivery Status:</span> {order.deliveryStatus}</p>
               <p className="text-gray-600"><span className="font-semibold">Price:</span> ${(order.price / 100).toFixed(2)}</p>
               <p className="text-gray-600"><span className="font-semibold">Order Date:</span> {new Date(order.createdAt).toLocaleDateString()}</p>
-              <p className="text-gray-600"><span className="font-semibold">Delivery Date:</span> {new Date(order?.deliveryDate).toLocaleDateString()}</p>
-              <p className="text-gray-600"><span className="font-semibold">Delivery Partner:</span> {order?.DeliveryPerson?.name}</p>
+              <p className="text-gray-600"><span className="font-semibold">Delivery Date:</span> {new Date(Number(order?.deliveryDate)).toLocaleDateString()}</p>
+              <p className="text-gray-600"><span className="font-semibold">Delivery Partner:</span> {order?.DeliveryPerson?.name!}</p>
               
               <button className="mt-4 w-full py-2 px-4 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition-colors duration-300">Cancel Order</button>
             </div>

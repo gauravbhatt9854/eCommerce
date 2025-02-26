@@ -5,12 +5,12 @@ export async function POST() {
   const user = await currentUser()
   try {
     if (user?.publicMetadata.role === "admin")
-      return NextResponse.json({ isAdmin: true })
+      return NextResponse.json({ isAdmin: true } , { status: 200 })
     else
-      return NextResponse.json({ isAdmin: false })
+      return NextResponse.json({ isAdmin: false }, { status: 200 })
   } catch (error) {
     console.log("error with isAdmin service")
-    return NextResponse.json({ isAdmin: false })
+    return NextResponse.json({ isAdmin: false }, { status: 500 })
 
   }
 }

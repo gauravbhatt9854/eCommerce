@@ -32,7 +32,7 @@ const Page = () => {
 
         if (!res.ok) {
           throw new Error("Failed to fetch product details");
-          router.push("/components/products");
+          router.push("/products");
         }
 
         const data = await res.json();
@@ -41,7 +41,7 @@ const Page = () => {
       } catch (error) {
         console.error("Error fetching product:", error);
         alert("Failed to load product. Please try again.");
-        router.push("/components/products");
+        router.push("/products");
       }
     };
 
@@ -94,7 +94,7 @@ const Page = () => {
 
       if (res.ok) {
         alert("Product deleted successfully");
-        router.push("/components/products"); // Redirect to product list
+        router.push("/products"); // Redirect to product list
       } else {
         throw new Error("Failed to delete product");
       }
@@ -148,6 +148,7 @@ const Page = () => {
           body: JSON.stringify(dbOrderData),
         });
 
+        if(!dbOrder.ok) console.log("Failed to save order details");
         const res = await dbOrder.json();
         dbOrderResponse = res;
       } catch (error) {
@@ -178,7 +179,8 @@ const Page = () => {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(sign),
             });
-
+            
+            if(!verificationResponse.ok) console.log("Failed to verify payment");
             const verificationResult = await verificationResponse.json();
             // console.log("Verification Result:", verificationResult);
 

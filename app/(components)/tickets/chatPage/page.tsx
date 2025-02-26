@@ -35,7 +35,7 @@ const SupportComponent: React.FC<{ orderId: string; customerId: string }> = ({ o
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch("/components/tickets/fetch", {
+        const response = await fetch("/tickets/fetch", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ orderId, customerId }),
@@ -76,7 +76,7 @@ const SupportComponent: React.FC<{ orderId: string; customerId: string }> = ({ o
       };
     }
     try {
-      const response = await fetch("/components/tickets/send", {
+      const response = await fetch("/tickets/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newMessage),

@@ -40,6 +40,10 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
         body: formData,
       });
   
+      if(!response.ok) {
+        console.log("Failed to add product");
+        return;
+      }
   
       const responseData = await response.json();
   
@@ -50,7 +54,7 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
       }
       
       alert("🎉 Product added successfully!");
-      router.push(`/components/products/${responseData.product.id}`);
+      router.push(`/products/${responseData.product.id}`);
     } catch (error) {
       console.error("🚨 Network or Unexpected Error:", error);
       alert("⚠️ Error adding product. Check console for details.");

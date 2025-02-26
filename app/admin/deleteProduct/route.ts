@@ -6,22 +6,23 @@ import { isAuthorized } from "../checkPoint/route";
 
 // Function to delete images from MinIO
 async function deleteImagesFromMinIO(imageUrls: string[]) {
-    const bucket = process.env.MINIO_BUCKET || "your-bucket-name"; // Your MinIO bucket name
-  
-    for (const imageUrl of imageUrls) {
-      // Extract the object key by removing the base URL and query parameters
-      const objectKey = imageUrl.split("?")[0].replace(`https://${process.env.MINIO_ENDPOINT}/${process.env.MINIO_BUCKET}/`, "");
-      
+  const bucket = process.env.MINIO_BUCKET!
+  const baseUrl = process.env.MINIO_ENDPOINT!
+  for (const imageUrl of imageUrls) {
       try {
-        // Delete the image from MinIO
-        await minioClient.removeObject(bucket, objectKey);
-        // console.log(`Successfully deleted image: ${objectKey}`);
+          // Extract object key by removing base URL and bucket name
+          const objectKey = imageUrl.replace(`${baseUrl}/${bucket}/`, "");
+
+          // Delete the image from MinIO
+          await minioClient.removeObject(bucket, objectKey);
+          console.log(`Successfully deleted image: ${objectKey}`);
       } catch (error) {
-        // console.error(`Error deleting image ${objectKey}:`, error);
-        return NextResponse.json({ message: "Missing s3 storage" }, { status: 500 });
+          console.error(`Error deleting image ${imageUrl}:`, error);
+          return NextResponse.json({ message: "Error deleting image from storage" }, { status: 500 });
       }
-    }
   }
+}
+
   
   // DELETE handler to delete product and images
   export async function DELETE(req: NextRequest) {

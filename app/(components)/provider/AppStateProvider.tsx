@@ -25,7 +25,11 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
   useEffect(() => {
     const checkAdmin = async () => {
       try {
-        const res = await fetch("/services/checkadmin", { method: "POST" });
+        const res = await fetch("/services/checkadmin",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" }
+          });
         const data = await res.json();
         setIsAdmin(data.isAdmin || false);
       } catch (error) {

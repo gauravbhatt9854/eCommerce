@@ -3,7 +3,7 @@ import {
   NavigationMenuItem,
 } from "../../TEMP/ui/navigation-menu"
 import { UserButton } from '@clerk/nextjs'
-import { Button } from "../..//TEMP/ui/button"
+import { Button } from "../../TEMP/ui/button"
 import Link from "next/link"
 import { useAppState } from "../provider/AppStateProvider"
 
@@ -25,23 +25,23 @@ const Nav = () => {
         </Link>
       </NavigationMenuItem>
       <NavigationMenuItem>
-        <Link href="/components/products">
+        <Link href="/products">
           <Button>Store</Button>
         </Link>
       </NavigationMenuItem>
       <NavigationMenuItem>
-        <Link href="/components/myOrders">
+        <Link href="/myOrders">
           <Button>My Orders</Button>
         </Link>
       </NavigationMenuItem>
 
-      {isAdmin && (<Link href="/components/allorder">
+      {isAdmin && (<Link href="/allorder">
         <NavigationMenuItem>
           <Button>All Orders</Button>
         </NavigationMenuItem>
       </Link>)}
 
-      {isAdmin && (<Link href="/components/tickets">
+      {isAdmin && (<Link href="/tickets">
         <NavigationMenuItem>
           <Button>Support</Button>
         </NavigationMenuItem>

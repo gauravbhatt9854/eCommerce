@@ -22,22 +22,25 @@ async function resizeImage(fileBuffer: Buffer): Promise<Buffer> {
  * @returns The URL of the uploaded file
  */
 async function uploadFileToMinIO(fileBuffer: Buffer, fileName: string): Promise<string> {
-  const bucket = process.env.MINIO_BUCKET || "bucket01";
+  const bucket = process.env.MINIO_BUCKET!
+  const baseUrl = process.env.MINIO_ENDPOINT!;
 
   try {
-    // console.log(`Uploading file to MinIO: ${fileName}`);
     await minioClient.putObject(bucket, fileName, fileBuffer, fileBuffer.length, {
       "Content-Type": "image/jpeg",
     });
 
-    const fileUrl = await minioClient.presignedGetObject(bucket, fileName);
-    // console.log(`File uploaded successfully: ${fileUrl}`);
+    // Construct the file URL manually
+    const fileUrl = `${baseUrl}/${bucket}/${fileName}`;
+    console.log(`File uploaded successfully: ${fileUrl}`);
+
     return fileUrl;
   } catch (error) {
     console.error("MinIO Upload Error:", error);
     throw new Error("Failed to upload file to MinIO");
   }
 }
+
 
 /**
  * Handles image upload and product creation request.

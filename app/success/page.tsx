@@ -24,10 +24,10 @@ const SuccessPage = () => {
           Go to Home
         </button>
         <button
-          onClick={() => router.push("/dashboard")}
+          onClick={() => router.push("/myOrders")}
           className="px-6 py-3 bg-gray-500 text-white font-semibold rounded-lg hover:bg-gray-600 focus:ring-2 focus:ring-gray-300"
         >
-          View Dashboard
+          My Orders
         </button>
       </div>
     </div>

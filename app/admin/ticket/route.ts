@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Return the fetched tickets in the response
-    return NextResponse.json(tickets);
+    return NextResponse.json(tickets , { status: 200 });
   } catch (error) {
     console.error("Failed to fetch tickets:", error);
     return NextResponse.json({ message: "Error fetching tickets." }, { status: 500 });
