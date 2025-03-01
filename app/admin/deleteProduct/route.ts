@@ -5,23 +5,28 @@ import prisma from "@/lib/prisma";
 import { isAuthorized } from "../checkPoint/route";
 
 // Function to delete images from MinIO
-async function deleteImagesFromMinIO(imageUrls: string[]) {
-  const bucket = process.env.MINIO_BUCKET!
-  const baseUrl = process.env.MINIO_ENDPOINT!
-  for (const imageUrl of imageUrls) {
-      try {
-          // Extract object key by removing base URL and bucket name
-          const objectKey = imageUrl.replace(`${baseUrl}/${bucket}/`, "");
+async function deleteImagesFromMinIO(imageFilenames: string[]) {
+  const bucket = process.env.MINIO_BUCKET!;
 
-          // Delete the image from MinIO
-          await minioClient.removeObject(bucket, objectKey);
-          console.log(`Successfully deleted image: ${objectKey}`);
+  try {
+    for (const fileName of imageFilenames) {
+      try {
+        // Delete the image from MinIO (No need to extract from URL)
+        await minioClient.removeObject(bucket, fileName);
+        console.log(`✅ Deleted: ${fileName}`);
       } catch (error) {
-          console.error(`Error deleting image ${imageUrl}:`, error);
-          return NextResponse.json({ message: "Error deleting image from storage" }, { status: 500 });
+        console.error(`❌ Error deleting ${fileName}:`, error);
       }
+    }
+
+    return NextResponse.json({ message: "Images deleted successfully" }, { status: 200 });
+
+  } catch (error) {
+    console.error("❌ Error in deleteImagesFromMinIO:", error);
+    return NextResponse.json({ message: "Failed to delete images" }, { status: 500 });
   }
 }
+
 
   
   // DELETE handler to delete product and images

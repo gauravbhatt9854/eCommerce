@@ -38,7 +38,7 @@ async function uploadMultipleFilesToMinIO(files: File[]): Promise<string[]> {
       });
 
       // Construct file URL
-      fileUrls.push(`${baseUrl}/${bucket}/${fileName}`);
+      fileUrls.push(`${fileName}`);
     } catch (error) {
       console.error("Error processing/uploading image:", error);
       throw new Error("Image processing or upload failed.");
