@@ -21,25 +21,33 @@ async function resizeImage(fileBuffer: Buffer): Promise<Buffer> {
  * @param fileName - The filename to store
  * @returns The URL of the uploaded file
  */
-async function uploadFileToMinIO(fileBuffer: Buffer, fileName: string): Promise<string> {
-  const bucket = process.env.MINIO_BUCKET!
+async function uploadMultipleFilesToMinIO(files: File[]): Promise<string[]> {
+  const bucket = process.env.MINIO_BUCKET!;
   const baseUrl = process.env.MINIO_ENDPOINT!;
+  const fileUrls: string[] = [];
 
-  try {
-    await minioClient.putObject(bucket, fileName, fileBuffer, fileBuffer.length, {
-      "Content-Type": "image/jpeg",
-    });
+  for (const file of files) {
+    try {
+      const originalBuffer = Buffer.from(await file.arrayBuffer());
+      const fileName = `product-images/${Date.now()}-${file.name}`;
 
-    // Construct the file URL manually
-    const fileUrl = `${baseUrl}/${bucket}/${fileName}`;
-    console.log(`File uploaded successfully: ${fileUrl}`);
+      // Resize image before upload
+      const resizedBuffer = await resizeImage(originalBuffer);
+      await minioClient.putObject(bucket, fileName, resizedBuffer, resizedBuffer.length, {
+        "Content-Type": "image/jpeg",
+      });
 
-    return fileUrl;
-  } catch (error) {
-    console.error("MinIO Upload Error:", error);
-    throw new Error("Failed to upload file to MinIO");
+      // Construct file URL
+      fileUrls.push(`${baseUrl}/${bucket}/${fileName}`);
+    } catch (error) {
+      console.error("Error processing/uploading image:", error);
+      throw new Error("Image processing or upload failed.");
+    }
   }
+
+  return fileUrls;
 }
+
 
 
 /**
@@ -60,30 +68,15 @@ export async function POST(request: Request): Promise<Response> {
     const description = formData.get("description") as string;
     const price = parseFloat(formData.get("price") as string);
     const categoryId = formData.get("categoryId") as string;
-    const files = formData.getAll("images");
+    const files = formData.getAll("images") as File[];
 
     if (files.length === 0) {
       return NextResponse.json({ error: "At least one image is required." }, { status: 400 });
     }
 
     // Step 3: Process & Upload Each Image
-    const fileUrls: string[] = [];
-    for (const file of files) {
-      if (file instanceof File) {
-        const originalBuffer = Buffer.from(await file.arrayBuffer());
-        const fileName = `product-images/${Date.now()}-${file.name}`;
+    const fileUrls = await uploadMultipleFilesToMinIO(files);
 
-        try {
-          // Resize image before upload
-          const resizedBuffer = await resizeImage(originalBuffer);
-          const fileUrl = await uploadFileToMinIO(resizedBuffer, fileName);
-          fileUrls.push(fileUrl);
-        } catch (error) {
-          console.error("Error processing/uploading image:", fileName, error);
-          return NextResponse.json({ error: "Image processing or upload failed." }, { status: 500 });
-        }
-      }
-    }
 
     // Step 4: Save Product Data in Prisma
     try {
