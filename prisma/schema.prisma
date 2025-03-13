@@ -30,7 +30,6 @@ model CustomerSupportMessage {
 
 model Order {
   id                     String                   @id @default(uuid())
-  clerkId                String
   userId                 String
   createdAt              DateTime                 @default(now())
   updatedAt              DateTime                 @updatedAt
@@ -66,6 +65,7 @@ model Product {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   imageUrls   String[]
+  isActive    Boolean    @default(true)
   Order       Order[]
   Category    Category   @relation(fields: [categoryId], references: [id])
   Review      Review[]
@@ -99,7 +99,6 @@ model Review {
 
 model User {
   id                                                             String                   @id @default(uuid())
-  clerkId                                                        String
   email                                                          String                   @unique
   name                                                           String
   phone                                                          String?
@@ -107,7 +106,16 @@ model User {
   updatedAt                                                      DateTime                 @updatedAt
   address                                                        String?
   walletBalance                                                  Int?                     @default(0)
-  Role                                                           String                   @default("USER")
+  AccessToken                                                    String?
+  AccessTokenExpiry                                              DateTime?
+  RefreshToken                                                   String?
+  RefreshTokenExpiry                                             DateTime?
+  password                                                       String                   @default("default")
+  isBlocked                                                      Boolean                  @default(false)
+  isVerified                                                     Boolean                  @default(false)
+  otp                                                            String?
+  otpExpiresAt                                                   DateTime?
+  role                                                           String                   @default("USER")
   CustomerSupportMessage_CustomerSupportMessage_receiverIdToUser CustomerSupportMessage[] @relation("CustomerSupportMessage_receiverIdToUser")
   CustomerSupportMessage_CustomerSupportMessage_senderIdToUser   CustomerSupportMessage[] @relation("CustomerSupportMessage_senderIdToUser")
   DeliveryPerson                                                 Order[]                  @relation("DeliveryPerson")

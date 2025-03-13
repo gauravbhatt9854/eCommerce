@@ -1,25 +1,58 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
-import { NextResponse } from 'next/server'
-const isPublicRoute = createRouteMatcher(['/sign-in(.*)', '/sign-up(.*)','/api/data','/api/webhook/register'])
-const isAdminRoute = createRouteMatcher(['/admin(.*)'])
+import { NextRequest, NextResponse } from 'next/server';
+import { jwtVerify } from 'jose';
 
-export default clerkMiddleware(async (auth, request) => {
-  // if (isAdminRoute(request) && user?.publicMetadata?.role !== "admin") {
-  //   console.log("not admin")
-  //   const url = new URL('/', request.url) 
-  //   return NextResponse.redirect(url)
-  // }
+const publicRoutes = ['/sign-in', '/sign-up', '/forget-password'];
+const adminRoutes = ['/admin'];
 
-  if (!isPublicRoute(request)) {
-    await auth.protect()
+// ✅ Use `Uint8Array` for secret key (Edge Runtime compatible)
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'your_secret_key');
+
+export async function middleware(request: NextRequest) {
+  const { nextUrl } = request;
+  const pathname = nextUrl.pathname;
+
+  // 🔒 Extract token from cookies
+  const token = request.cookies.get('token')?.value || null;
+
+
+  // ✅ Allow all API routes
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next();
   }
-})
 
+  // ✅ Allow public routes
+  if (publicRoutes.includes(pathname)) {
+    return NextResponse.next();
+  }
+
+  // 🚫 If no token → Redirect to /sign-up
+  if (!token) {
+    console.log('Redirecting to /sign-in (No Token)');
+    return NextResponse.redirect(new URL('/sign-in', request.url), {
+      headers: { 'Cache-Control': 'no-store' }, // ✅ Prevent redirect caching
+    });
+  }
+
+  try {
+    // ✅ Verify JWT token using `jose`
+    // console.log('Verifying Token...'); // Debug log
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+
+    // console.log('Decoded Token:', payload); // ✅ Correct variable name
+    return NextResponse.next();
+
+  } catch (error) {
+    console.error('JWT Verification Error:', error);
+    console.log('Redirecting to /sign-in (Invalid/Expired Token)');
+    return NextResponse.redirect(new URL('/sign-in', request.url), {
+      headers: { 'Cache-Control': 'no-store' },
+    });
+  }
+}
+
+// ✅ FIXED MATCHER: Allows /sign-up properly
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for API routes
-    '/(api|trpc)(.*)',
+    '/((?!_next/|static/|favicon.ico|sign-up).*)', // ✅ Now allows /sign-up
   ],
-}
+};

@@ -1,13 +1,28 @@
-import { NextResponse } from "next/server";
+import { NextResponse , NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
-import { isAuthorized } from "@/app/admin/checkPoint/route";
+import jwt from "jsonwebtoken";
+const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
 
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     try {
         // Check if user is authorized
-        if (!(await isAuthorized())) {
-            return NextResponse.json({ success: false, message: "Access denied" }, { status: 403 });
+        const token = request.cookies.get("token")?.value;
+
+        if (!token) {
+          return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+    
+        // Step 2: Verify Token & Check Admin Role
+        let decoded;
+        try {
+          decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: string };
+        } catch (error) {
+          return NextResponse.json({ error: "Invalid Token" }, { status: 401 });
+        }
+    
+        if (decoded.role !== "ADMIN") {
+          return NextResponse.json({ error: "Access denied" }, { status: 403 });
         }
 
         // Parse request body

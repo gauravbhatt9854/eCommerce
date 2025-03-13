@@ -1,8 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import sharp from "sharp";
 import minioClient from "../minioS3/route";
-import { isAuthorized } from "../checkPoint/route";
 import prisma from "@/lib/prisma";
+
+import jwt from "jsonwebtoken";
+const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
 
 /**
  * Resizes an image using Sharp before uploading.
@@ -12,18 +14,16 @@ import prisma from "@/lib/prisma";
 async function resizeImage(fileBuffer: Buffer): Promise<Buffer> {
   return sharp(fileBuffer)
     .resize(2000, 2000, { fit: "cover", position: "center" }) // Ensures a perfect square
-    .toBuffer(); // Keeps original quality
+    .toBuffer();
 }
 
 /**
- * Uploads a file buffer to MinIO and returns the file URL.
- * @param fileBuffer - The processed image buffer
- * @param fileName - The filename to store
- * @returns The URL of the uploaded file
+ * Uploads multiple files to MinIO and returns their URLs.
+ * @param files - The array of files
+ * @returns Array of uploaded image URLs
  */
 async function uploadMultipleFilesToMinIO(files: File[]): Promise<string[]> {
   const bucket = process.env.MINIO_BUCKET!;
-  const baseUrl = process.env.MINIO_ENDPOINT!;
   const fileUrls: string[] = [];
 
   for (const file of files) {
@@ -37,7 +37,6 @@ async function uploadMultipleFilesToMinIO(files: File[]): Promise<string[]> {
         "Content-Type": "image/jpeg",
       });
 
-      // Construct file URL
       fileUrls.push(`${fileName}`);
     } catch (error) {
       console.error("Error processing/uploading image:", error);
@@ -48,21 +47,33 @@ async function uploadMultipleFilesToMinIO(files: File[]): Promise<string[]> {
   return fileUrls;
 }
 
-
-
 /**
  * Handles image upload and product creation request.
  * @param request - The incoming request
  * @returns API response
  */
-export async function POST(request: Request): Promise<Response> {
+export async function POST(request: NextRequest): Promise<Response> {
   try {
-    // Step 1: Authorization Check
-    if (!(await isAuthorized())) {
+    // Step 1: Extract Token from Cookies
+    const token = request.cookies.get("token")?.value;
+
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Step 2: Verify Token & Check Admin Role
+    let decoded;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: string };
+    } catch (error) {
+      return NextResponse.json({ error: "Invalid Token" }, { status: 401 });
+    }
+
+    if (decoded.role !== "ADMIN") {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    // Step 2: Parse FormData
+    // Step 3: Parse FormData
     const formData = await request.formData();
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
@@ -70,15 +81,14 @@ export async function POST(request: Request): Promise<Response> {
     const categoryId = formData.get("categoryId") as string;
     const files = formData.getAll("images") as File[];
 
-    if (files.length === 0) {
+    if (!files.length) {
       return NextResponse.json({ error: "At least one image is required." }, { status: 400 });
     }
 
-    // Step 3: Process & Upload Each Image
+    // Step 4: Upload Images
     const fileUrls = await uploadMultipleFilesToMinIO(files);
 
-
-    // Step 4: Save Product Data in Prisma
+    // Step 5: Save Product Data in Prisma
     try {
       const newProduct = await prisma.product.create({
         data: {
@@ -86,12 +96,13 @@ export async function POST(request: Request): Promise<Response> {
           description,
           price,
           categoryId,
-          imageUrls: fileUrls, // Save resized image URLs
+          imageUrls: fileUrls, // Save uploaded image URLs
         },
       });
 
       return NextResponse.json({ success: true, product: newProduct });
     } catch (error) {
+      console.error("Error saving product:", error);
       return NextResponse.json({ error: "Failed to save product." }, { status: 500 });
     }
   } catch (error) {

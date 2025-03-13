@@ -1,23 +1,31 @@
 "use client"
-import Link from "next/link";
 import { useState } from "react";
+import { Product } from "@prisma/client";
+import { useAppState } from "../../provider/AppStateProvider";
 
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  stock: number;
-  discount?: number;
-  categoryId: string;
-  imageUrls: string[];
-}
-
-const ProductCard = ({ product, descHandler }: { product: Product; descHandler: (id: string) => void }) => {
+const ProductCard = ({ product, descHandler }: { product: Product; descHandler: (id: string) => void;}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { isAdmin } = useAppState();
 
   const nextImage = () => setCurrentIndex((prev) => (prev === product.imageUrls.length - 1 ? 0 : prev + 1));
   const prevImage = () => setCurrentIndex((prev) => (prev === 0 ? product.imageUrls.length - 1 : prev - 1));
+
+  const toggleActive = async (id: string) => {
+    try {
+      const res = await fetch("/admin/product/isActive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+  
+      if (!res.ok) console.log("Failed to change active status");
+    } catch (error) {
+      console.error("Error toggling active status in products:", error);
+    } finally {
+      window.location.reload(); // Reloads the current page
+    }
+  };
+  
 
   return (
     <div className="bg-white shadow-md rounded-lg p-6">
@@ -46,9 +54,19 @@ const ProductCard = ({ product, descHandler }: { product: Product; descHandler: 
       <h2 className="text-xl font-semibold mt-4">{product.name}</h2>
       <p className="text-gray-700 mt-2">{product.description}</p>
       <p className="text-indigo-600 font-semibold mt-4">₹{product.price}</p>
-      <button onClick={() => descHandler(product.id)} className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded-md">
+<div className="flex justify-between items-center mt-4">
+<button onClick={() => descHandler(product.id)} className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded-md">
         See Description
       </button>
+
+{
+  isAdmin && (
+    <button onClick={() => toggleActive(product.id)} className={`mt-4 px-4 py-2 ${product.isActive ?" bg-green-500" : "bg-red-500"} text-white rounded-md`}>
+      Visibility : {product.isActive ? "Yes" : "No"}
+    </button>
+  )
+}
+</div>
     </div>
   );
 };

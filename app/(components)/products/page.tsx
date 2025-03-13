@@ -5,45 +5,46 @@ import { useAppState } from "../provider/AppStateProvider";
 import ProductCard from "./child/ProductCard";
 import CategoryModal from "./child/CategoryModal";
 import ProductModal from "./child/ProductModal";
- 
+
 const ProductsPage = () => {
   const { isAdmin } = useAppState();
   const router = useRouter();
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | "all">("all");
   const [isLoading, setIsLoading] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      setIsLoading(true);
-      try {
-        const res = await fetch("/api/products");
-        if(!res.ok) console.log("Failed to fetch products");
-        const data = await res.json();
-        setProducts(data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    const fetchCategories = async () => {
-      try {
-        const res = await fetch("/api/categories");
-        if(!res.ok) console.log("Failed to fetch categories");
-        const data = await res.json();
-        setCategories(data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-
-    fetchProducts();
     fetchCategories();
-  }, []);
+    fetchProducts(selectedCategory);
+  }, [selectedCategory]);
+
+  const fetchProducts = async (category: string) => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/products?category=${category !== "all" ? category : ""}`);
+      if (!res.ok) console.log("Failed to fetch products");
+      const data = await res.json();
+      setProducts(data);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch("/api/categories");
+      if (!res.ok) console.log("Failed to fetch categories");
+      const data = await res.json();
+      setCategories(data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
   const handleNewCategorySubmit = (categoryName: string) => {
     fetch("/api/categories/add", {
@@ -51,7 +52,10 @@ const ProductsPage = () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: categoryName }),
     })
-      .then(() => alert("Category added successfully!"))
+      .then(() => {
+        alert("Category added successfully!");
+        fetchCategories();
+      })
       .catch(() => alert("Failed to add category."));
   };
 
@@ -65,6 +69,22 @@ const ProductsPage = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-3xl font-bold text-center mb-8">Products</h1>
+
+      {/* Filter by Category */}
+      <div className="mb-6 flex space-x-4">
+        <select
+          className="px-4 py-2 border rounded-md"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
+          <option value="all">All Categories</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {isAdmin && (
         <div className="mb-8 space-x-4">
@@ -80,7 +100,7 @@ const ProductsPage = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} descHandler={(id) => router.push(`/products//${id}`)} />
+          <ProductCard key={product.id} product={product} descHandler={(id) => router.push(`/products/${id}`)} />
         ))}
       </div>
     </div>

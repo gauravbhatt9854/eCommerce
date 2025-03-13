@@ -33,6 +33,33 @@ const AdminOrdersPage = () => {
     fetchOrders();
   }, []);
 
+  // Function to cancel (delete) an order by sending its id via a POST request
+  const cancelOrder = async (orderId: string) => {
+    const confirmDelete = window.confirm("Are you sure you want to cancel this order?");
+    if (!confirmDelete) return;
+  
+    try {
+      
+      const response = await fetch("/admin/deleteOrder", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: orderId }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to cancel order");
+        return;
+      }
+
+      // Update the UI by removing the canceled order
+      setOrders((prevOrders) => prevOrders.filter((order) => order.id !== orderId));
+    } catch (err) {
+      console.error("Error canceling order:", err);
+    }
+  };
+
   if (loading) {
     return <div className="text-center text-xl text-gray-700">Loading...</div>;
   }
@@ -87,9 +114,14 @@ const AdminOrdersPage = () => {
               <p className="text-gray-600"><span className="font-semibold">Price:</span> ${(order.price / 100).toFixed(2)}</p>
               <p className="text-gray-600"><span className="font-semibold">Order Date:</span> {new Date(order.createdAt).toLocaleDateString()}</p>
               <p className="text-gray-600"><span className="font-semibold">Delivery Date:</span> {new Date(Number(order?.deliveryDate)).toLocaleDateString()}</p>
-              <p className="text-gray-600"><span className="font-semibold">Delivery Partner:</span> {order?.DeliveryPerson?.name!}</p>
+              <p className="text-gray-600"><span className="font-semibold">Delivery Partner:</span> {order?.DeliveryPerson?.name}</p>
               
-              <button className="mt-4 w-full py-2 px-4 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition-colors duration-300">Cancel Order</button>
+              <button 
+                className="mt-4 w-full py-2 px-4 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition-colors duration-300"
+                onClick={() => cancelOrder(order.id)}
+              >
+                Cancel Order
+              </button>
             </div>
           ))
         )}

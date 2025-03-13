@@ -1,34 +1,17 @@
 "use client";
 import React, { useState, useEffect, useRef, use } from "react";
-import {  useUser } from '@clerk/nextjs'
+import { useAppState } from "../../provider/AppStateProvider";
 
 const SupportComponent: React.FC<{ orderId: string; customerId: string }> = ({ orderId, customerId }) => {
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<{ senderId: string; receiverId: string; message: string; timestamp: string; }[]>([]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [dbId , setDbId] = useState<string | null>(null)
+  const { user } = useAppState();
 
-  const { user } = useUser()
   useEffect(() => {
-    // make a api call to get the user details has clerkId = user.id
-    const fetchUser = async () => {
-      try {
-        const response = await fetch("/api/clerkId", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ clerkId: user?.id }),
-        });
-
-        if (!response.ok) throw new Error("Failed to fetch user");
-
-        const data = await response.json();
-        setDbId(data.id);
-      } catch (error) {
-        console.error("Error fetching user:", error);
-      }
-    }
-
-    fetchUser();
+    if(!user) return;
+        setDbId(()=> user?.id || "")
   }, [user]);
 
   // Fetch messages for the specific order

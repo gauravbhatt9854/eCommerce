@@ -1,8 +1,7 @@
 "use client";
-
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { io, Socket } from "socket.io-client";
-import { useUser } from "@clerk/nextjs";
+import { useAppState } from "./AppStateProvider";
 
 // Define the context type
 interface SocketContextType {
@@ -15,7 +14,7 @@ const SOCKET_SERVER_URL = process.env.NEXT_PUBLIC_CHAT_BACKEND_URL;
 // Socket Provider Component
 export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
-  const { user } = useUser();
+  const { user} = useAppState();
 
   useEffect(() => {
     if (!SOCKET_SERVER_URL) {
@@ -28,7 +27,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
     newSocket.on("connect", () => {
       // console.log("✅ WebSocket Connected:", newSocket.id);
-      // console.log("✅ WebSocket Connected:");
+      console.log("✅ WebSocket Connected:");
       
       // Emit register event after connection
       if (user) {
@@ -36,9 +35,8 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           l1: 23,  // Including l1
           l2: 79,  // Including l2
           username: user.fullName || "Guest",
-          profileUrl: user.imageUrl || "fallback-image-url",
+          profileUrl: user.profileUrl || "fallback-image-url",
         });
-        console.log("📤 Register event sent");
       }
     });
 

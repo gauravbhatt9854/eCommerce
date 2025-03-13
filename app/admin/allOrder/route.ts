@@ -1,13 +1,31 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import { isAuthorized } from "../checkPoint/route";
+import jwt from 'jsonwebtoken';
 
 
 export async function GET(req: NextRequest) {
     try {
-        if (!(await isAuthorized())) return NextResponse.json({ message: "access denied" }, { status: 400 });
+        const token = req.cookies.get("token")?.value; // Change "auth_token" to your actual cookie name
 
-        // Retrieve all orders where clerkId equals the userId
+        if (!token) {
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        }
+
+        // Verify and decode the token (Replace "your-secret-key" with your actual secret key)
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string , role:string }; // Ensure JWT_SECRET is set in .env
+        } catch (err) {
+            return NextResponse.json({ message: "Invalid token" }, { status: 403 });
+        }
+
+        // Extract userId from decoded token
+        const role = decoded?.role;
+
+        if (role!='ADMIN') {
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        }
+
         const orders = await prisma.order.findMany({
             include: {
                 Product: true,
