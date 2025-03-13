@@ -7,6 +7,7 @@ import Image from "next/image";
 
 export default function SupportPage() {
   const handleLinkedInClick = () => {
+    
     window.open("https://www.linkedin.com/in/golubhattuk01", "_blank");
   };
 
