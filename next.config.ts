@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
     // Option to disable ESLint during builds
     ignoreDuringBuilds: true,
   },
+  images: {
+    domains: ["s3.golu.codes"], // Add your MinIO domain here
+  },
 };
 
 export default nextConfig;

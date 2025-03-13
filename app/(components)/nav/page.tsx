@@ -2,24 +2,27 @@
 import {
   NavigationMenuItem,
 } from "../../TEMP/ui/navigation-menu"
-import { UserButton } from '@clerk/nextjs'
 import { Button } from "../../TEMP/ui/button"
 import Link from "next/link"
 import { useAppState } from "../provider/AppStateProvider"
-
-
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import Profile from "../profile/page"
 
 const Nav = () => {
-  const { setIsChat , user} = useAppState();
-  if(!user){
+  const { setIsChat, user, isAdmin , isProfile , setIsProfile} = useAppState();
+  if (!user) {
     return null;
   }
-  const { isAdmin } = useAppState();
 
   return (
     <div className="flex justify-between -600 py-4 px-10">
-      <UserButton />
+        <Avatar onClick={() => setIsProfile((pre) => pre!=undefined &&  !pre)}>
+          <AvatarImage src={user.profileUrl} />
+          <AvatarFallback>CN</AvatarFallback>
+        </Avatar>
+        {isProfile && <Profile />}
       <NavigationMenuItem>
+
         <Link href="/">
           <Button>Home</Button>
         </Link>

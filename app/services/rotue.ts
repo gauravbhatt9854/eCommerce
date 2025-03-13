@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
-import { auth, UserJSON, WebhookEvent } from '@clerk/nextjs/server';
+import { UserJSON, WebhookEvent } from '@clerk/nextjs/server';
+
 const auth_ = nodemailer.createTransport({
   service: 'gmail',
   secure: true,
@@ -64,7 +65,6 @@ async function sendAccountCreationEmail(data: WebhookEvent['data']) {
   }
 }
 
-
 async function sendAccountDeletionEmail(tempUser: {
   id: string;
   clerkId: string;
@@ -74,16 +74,16 @@ async function sendAccountDeletionEmail(tempUser: {
   createdAt: Date;
   updatedAt: Date;
 }) {
-  if (!tempUser ) {
+  if (!tempUser) {
     console.error("No user found to send deletion email.");
     return { message: "No user found." };
   }
 
   const user = tempUser;
-    const subject = "Your Account Has Been Deleted";
-    const text = `Dear ${user.name},\n\nYour account associated with ${user.email} has been successfully deleted. If you did not request this deletion, please contact our support team immediately.\n\nBest Regards,\nGaurav Bhatt`;
+  const subject = "Your Account Has Been Deleted";
+  const text = `Dear ${user.name},\n\nYour account associated with ${user.email} has been successfully deleted. If you did not request this deletion, please contact our support team immediately.\n\nBest Regards,\nGaurav Bhatt`;
 
-    const htmlContent = `
+  const htmlContent = `
       <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
           <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
@@ -101,26 +101,63 @@ async function sendAccountDeletionEmail(tempUser: {
       </html>
     `;
 
-    const receiver = {
-      from: process.env.EMAIL, // Your system email
-      to: user.email, // User's email
-      subject,
-      text,
-      html: htmlContent,
-    };
+  const receiver = {
+    from: process.env.EMAIL, // Your system email
+    to: user.email, // User's email
+    subject,
+    text,
+    html: htmlContent,
+  };
 
-    try {
-      const ans = await auth_.sendMail(receiver);
-      if (ans) {
-        return { message: 'Email sent' };
-      }
-    } catch (error) {
-      console.error(`Error while sending email to ${user.email}:`, error);
-      return { message: 'Email not sent' };
-      
+  try {
+    const ans = await auth_.sendMail(receiver);
+    if (ans) {
+      return { message: 'Email sent' };
     }
+  } catch (error) {
+    console.error(`Error while sending email to ${user.email}:`, error);
+    return { message: 'Email not sent' };
+
   }
+}
 
+async function sendOtpEmail(email: string, name: string, otp: string) {
+  console.log("Sending OTP email to:", email);
+  console.log(process.env.EMAIL);
+  console.log(process.env.PASSWORD);
+    const mailOptions = {
+    from: process.env.EMAIL,
+    to: email,
+    subject: "Your OTP Code",
+    text: `Dear ${name},\n\nYour OTP code is: ${otp}. It is valid for 10 minutes.\n\nBest Regards,\nGaurav Bhatt`,
+    html: `
+        <html>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
+            <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+              <h2 style="color: #E53935;">Your OTP Code</h2>
+              <p style="font-size: 16px;">Dear ${name},</p>
+              <p style="font-size: 14px;">Your OTP code is: <strong>${otp}</strong></p>
+              <p style="font-size: 14px;">This OTP is valid for 10 minutes. Please do not share it with anyone.</p>
+              <br>
+              <p>Best Regards,</p>
+              <p><strong>Gaurav Bhatt</strong></p>
+            </div>
+          </body>
+        </html>
+      `,
+  };
 
-export { sendAccountDeletionEmail , sendAccountCreationEmail };
+  try {
+    console.log("before sending email");
+    const ans = await auth_.sendMail(mailOptions);
+    if (ans) {
+      return { message: 'Email sent' };
+    }
+  } catch (error) {
+    console.error('Error while sending email:', error);
+    return { message: 'Email not sent' };
+}
+}
+
+export { sendAccountDeletionEmail, sendAccountCreationEmail, sendOtpEmail };
 

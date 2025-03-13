@@ -1,13 +1,29 @@
-import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import { isAuthorized } from "../checkPoint/route";
+import jwt from "jsonwebtoken";
+const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
 
 // API route for updating product details
 export async function PUT(req: NextRequest) {
 
          
-    if(!(await isAuthorized())) return NextResponse.json({ message: "access denied" }, { status: 400 });
+    const token = req.cookies.get("token")?.value;
+
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Step 2: Verify Token & Check Admin Role
+    let decoded;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: string };
+    } catch (error) {
+      return NextResponse.json({ error: "Invalid Token" }, { status: 401 });
+    }
+
+    if (decoded.role !== "ADMIN") {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
     const { name, description, price , id } = await req.json();
 
     if (!name || !description || !price) {

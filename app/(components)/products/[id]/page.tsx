@@ -1,5 +1,4 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
 import { useParams, useRouter } from "next/navigation";
 import Script from "next/script";
 import { useEffect, useState } from "react";
@@ -13,7 +12,7 @@ import { Product } from '@prisma/client'
 const Page = () => {
   const { isAdmin } = useAppState();
   const params = useParams();
-  const { user } = useUser();
+  const {user} = useAppState();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false); // To toggle product edit mode
@@ -137,7 +136,7 @@ const Page = () => {
         razorpay_order_id: order.id,
         totalAmount: price,
         price: price,
-        email: user?.emailAddresses[0]?.emailAddress,
+        email: user?.email,
       };
 
       let dbOrderResponse: any;
@@ -192,7 +191,7 @@ const Page = () => {
         },
         prefill: {
           name: user?.fullName || "Guest",
-          email: user?.emailAddresses[0]?.emailAddress || "sample@gmail.com",
+          email: user?.email || "sample@gmail.com",
         },
         theme: {
           color: "#F37254",

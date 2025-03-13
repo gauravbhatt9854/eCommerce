@@ -18,6 +18,7 @@ const MyOrdersPage: React.FC = () => {
   const supportBoxRef = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   useEffect(() => {
+    console.log("Fetching orders...");
     const fetchOrders = async () => {
       try {
         const response = await fetch("/api/orders/myOrders");
@@ -27,6 +28,7 @@ const MyOrdersPage: React.FC = () => {
         }
         const data: Order[] = await response.json();
         setOrders(data);
+        console.log(data);
       } catch (err) {
         setError("An error occurred. Please try again");
       } finally {

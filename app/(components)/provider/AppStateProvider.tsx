@@ -1,47 +1,63 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { useUser } from "@clerk/nextjs";
+
+interface UserType {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  fullName: string;
+  profileUrl: string;
+  phone: string;
+}
 
 interface AppStateContextType {
-  user: any;
+  user: UserType | null;
   isChat: boolean;
   isSupport: boolean;
   isAdmin: boolean;
+  isProfile: boolean;
   setIsChat: React.Dispatch<React.SetStateAction<boolean>>;
   setIsSupport: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsProfile?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 // Create context
 const AppStateContext = createContext<AppStateContextType | null>(null);
 
 export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<UserType | null>(null);
   const [isChat, setIsChat] = useState<boolean>(false);
   const [isSupport, setIsSupport] = useState<boolean>(true);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const { user } = useUser();
+  const [isProfile, setIsProfile] = useState<boolean>(false);
 
-  // Check if user is admin
+  // Fetch user data from token
   useEffect(() => {
-    const checkAdmin = async () => {
+    const fetchUser = async () => {
       try {
-        const res = await fetch("/services/checkadmin",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" }
-          });
+        const res = await fetch("/services/getUser");
         const data = await res.json();
-        setIsAdmin(data.isAdmin || false);
+
+        if (res.ok && data.user) {
+          const { user: fetchedUser } = data;
+
+          const updatedUser = { ...fetchedUser, fullName: fetchedUser.name, profileUrl: "https://s3.golu.codes/bucket02/296fe121-5dfa-43f4-98b5-db50019738a7.jpg" };
+
+          setUser((pre)=>updatedUser);
+          setIsAdmin(fetchedUser.role === "ADMIN");
+        }
       } catch (error) {
-        console.error("Error checking admin status:", error);
+        console.error("Error fetching user:", error);
       }
     };
 
-    checkAdmin();
-  }, []);
+    fetchUser();
+  }, []); // Runs once on mount
 
   return (
-    <AppStateContext.Provider value={{ user, isChat, setIsChat, isSupport, setIsSupport, isAdmin }}>
+    <AppStateContext.Provider value={{ user, isChat, setIsChat, isSupport, setIsSupport, isAdmin , isProfile, setIsProfile }}>
       {children}
     </AppStateContext.Provider>
   );
