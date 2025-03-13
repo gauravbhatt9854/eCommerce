@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    domains: ["s3.golu.codes"], // Add your MinIO domain here
+    domains: ["s3.golu.codes" , "golu.codes"], // Add your MinIO domain here
   },
 };
 
