@@ -173,7 +173,7 @@ const Page = () => {
               DB_ORDER_ID: dbOrderResponse.orderId,
             };
 
-            const verificationResponse = await fetch("/api/webhook/razorpay", {
+            const verificationResponse = await fetch("/api/razorpay", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(sign),

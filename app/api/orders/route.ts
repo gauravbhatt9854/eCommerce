@@ -8,7 +8,6 @@ export async function POST(req: NextRequest) {
   try {
       // 🔒 Extract token from cookies
       const token = req.cookies.get('token')?.value;
-      console.log('Token:', token || 'No Token');
 
       if (!token) {
         return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -58,8 +57,6 @@ export async function POST(req: NextRequest) {
         },
       });
 
-
-      // console.log("Order Created Successfully:", order);
 
       return NextResponse.json({ message: "Order created", orderId: order.id }, { status: 201 });
     } catch (error) {
