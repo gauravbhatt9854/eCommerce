@@ -1,5 +1,6 @@
 import { NextRequest , NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { sendUserEvent } from "@/app/services/rotue";
 
 export async function POST(req: NextRequest) {
     try {
@@ -31,6 +32,7 @@ export async function POST(req: NextRequest) {
         data: { isVerified: true, otp: null, otpExpiresAt: null },
       });
   
+      await sendUserEvent(user , "user.created")
       return NextResponse.json(
         { message: "OTP verified successfully!" },
         { status: 200 }

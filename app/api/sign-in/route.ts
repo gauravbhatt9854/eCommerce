@@ -7,7 +7,6 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
 export async function POST(req: NextRequest) {
     try {
         const { email, password } = await req.json();
-        console.log(email  , password);
         
         if (!email || !password) {
             return NextResponse.json({ message: 'Email and password are required' }, { status: 400 });

@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from 'next/server';
+import { sendUserEvent } from '@/app/services/rotue';
 
 export async function POST(req: NextRequest) {
     const { email, otp, password } = await req.json();
@@ -25,6 +26,7 @@ export async function POST(req: NextRequest) {
             data: { password: hashedPassword, otp: null, otpExpiresAt: null }
         });
 
+        await sendUserEvent(user, "user.passwordReset");
         return NextResponse.json({ message: 'Password reset successful' }, { status: 200 });
     } catch (error) {
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { UserJSON, WebhookEvent } from '@clerk/nextjs/server';
+import { User , Order } from '@prisma/client';
 
 const auth_ = nodemailer.createTransport({
   service: 'gmail',
@@ -11,24 +11,19 @@ const auth_ = nodemailer.createTransport({
   },
 });
 
+async function sendUserEvent(user: User, eventName: string) {
+  console.log("event Name : " , eventName);
+  let customer = user?.email;
+  let name = user?.name;
 
-async function sendAccountCreationEmail(data: WebhookEvent['data']) {
-  let subject: string = 'Welcome to the family';
-  let customer = (data as UserJSON).email_addresses[0].email_address;
-  let name = (data as UserJSON).first_name + ' ' + (data as UserJSON).last_name;
-  let text = "";
-
-  if (!customer || !subject) {
-    { message: 'Email not sent' }
+  if (!customer || !name) {
+    return { message: "Invalid user details" };
   }
 
-  if (customer === 'example@example.org') {
-    customer = process.env.T_EMAIL as string;
-    subject = 'TEMP SUBJECT';
-    text = 'TEMP TEXT JUST FOR TESTING PURPOSE';
-  }
+  if (eventName === "user.created") {
+    let subject = "Welcome to the family";
 
-  const htmlContent = `
+    const htmlContent = `
     <html>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
         <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
@@ -44,88 +39,136 @@ async function sendAccountCreationEmail(data: WebhookEvent['data']) {
         </div>
       </body>
     </html>
-  `;
+    `;
 
-  const receiver = {
-    from: process.env.EMAIL,
-    to: customer,
-    subject,
-    text: "",
-    html: htmlContent, // HTML email content
-  };
+    const receiver = {
+      from: process.env.EMAIL,
+      to: customer,
+      subject,
+      text: `Welcome ${name}! Thank you for registering with us.`,
+      html: htmlContent,
+    };
 
-  try {
-    const ans = await auth_.sendMail(receiver);
-    if (ans) {
-      return { message: 'Email sent' };
+    try {
+      const ans = await auth_.sendMail(receiver);
+      return ans ? { message: "Email sent" } : { message: "Email not sent" };
+    } catch (error) {
+      console.error("Error while sending email:", error);
+      return { message: "Email not sent" };
     }
-  } catch (error) {
-    console.error('Error while sending email:', error);
-    return { message: 'Email not sent' };
+  }
+
+  if (eventName === "user.passwordReset") {
+    let subject = "Password Reset Successfully";
+
+    const htmlContent = `
+    <html>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
+        <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+          <h2 style="color: #4CAF50;">Your Password Has Been Reset Successfully</h2>
+          <p style="font-size: 16px;">Dear ${name},</p>
+          <p style="font-size: 14px;">Your password has been reset successfully. You can now log in using your new password.</p>
+          <br>
+          <a href="https://oc.golu.codes/login" style="display: inline-block; padding: 12px 20px; font-size: 16px; color: #fff; background-color: #4CAF50; text-decoration: none; border-radius: 5px;">Login Now</a>
+          <br><br>
+          <p>If you did not reset your password, please contact support immediately.</p>
+          <br>
+          <p>Best Regards,</p>
+          <p><strong>Gaurav Bhatt</strong></p>
+        </div>
+      </body>
+    </html>
+    `;
+
+    const receiver = {
+      from: process.env.EMAIL,
+      to: customer,
+      subject,
+      text: `Dear ${name}, your password has been reset successfully. If this wasn't you, please contact support immediately.`,
+      html: htmlContent,
+    };
+
+    try {
+      const ans = await auth_.sendMail(receiver);
+      return ans ? { message: "Password reset confirmation email sent" } : { message: "Email not sent" };
+    } catch (error) {
+      console.error("Error while sending password reset confirmation email:", error);
+      return { message: "Email not sent" };
+    }
   }
 }
 
-async function sendAccountDeletionEmail(tempUser: {
-  id: string;
-  clerkId: string;
-  email: string;
-  name: string;
-  phone: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-}) {
-  if (!tempUser) {
-    console.error("No user found to send deletion email.");
-    return { message: "No user found." };
+
+async function sendOrderEvent(order: Order, eventName: string) {
+  console.log("event Name : " , eventName);
+  let customer = order.User?.email;
+  let name = order.User?.name;
+  let text = "";
+
+  if (!customer || !name) {
+    return { message: "Invalid order details" };
   }
 
-  const user = tempUser;
-  const subject = "Your Account Has Been Deleted";
-  const text = `Dear ${user.name},\n\nYour account associated with ${user.email} has been successfully deleted. If you did not request this deletion, please contact our support team immediately.\n\nBest Regards,\nGaurav Bhatt`;
+  if (eventName === "order.placed") {
+    let subject = "Order Placed Successfully";
 
-  const htmlContent = `
-      <html>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
-          <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
-            <h2 style="color: #E53935;">Account Deleted Successfully</h2>
-            <p style="font-size: 16px;">Dear ${user.name},</p>
-            <p style="font-size: 14px;">Your account with email <strong>${user.email}</strong> has been successfully deleted.</p>
-            <p style="font-size: 14px;">If this was not done by you or if you wish to recover your account, please contact our support team immediately.</p>
-            <br>
-            <a href="mailto:support@example.com" style="display: inline-block; padding: 12px 20px; font-size: 16px; color: #fff; background-color: #E53935; text-decoration: none; border-radius: 5px;">Contact Support</a>
-            <br><br>
-            <p>Best Regards,</p>
-            <p><strong>Gaurav Bhatt</strong></p>
-          </div>
-        </body>
-      </html>
+    // Get Product Details
+    let productName = order.Product?.name || "Unknown Product";
+    let productDescription = order.Product?.description || "No description available";
+    let productQuantity = order.quantity || 1;
+
+    const htmlContent = `
+    <html>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
+        <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+          <h2 style="color: #4CAF50;">Your Order Has Been Placed Successfully!</h2>
+          <p style="font-size: 16px;">Dear ${name},</p>
+          <p style="font-size: 14px;">Thank you for your order. Your order ID is <strong>${order.id}</strong>.</p>
+          <p style="font-size: 14px;">Total Amount: <strong>₹${order.totalAmount}</strong></p>
+          <p style="font-size: 14px;">Delivery Address: ${order.deliveryAddress || "Not Provided"}</p>
+          <p style="font-size: 14px;">Estimated Delivery Date: ${order.deliveryDate ? order.deliveryDate.toDateString() : "TBD"}</p>
+
+          <hr>
+
+          <h3>Product Details</h3>
+          <p style="font-size: 14px;"><strong>Product Name:</strong> ${productName}</p>
+          <p style="font-size: 14px;"><strong>Description:</strong> ${productDescription}</p>
+          <p style="font-size: 14px;"><strong>Quantity:</strong> ${productQuantity}</p>
+
+          <br>
+          <a href="https://oc.golu.codes/orders/${order.id}" style="display: inline-block; padding: 12px 20px; font-size: 16px; color: #fff; background-color: #4CAF50; text-decoration: none; border-radius: 5px;">Track Order</a>
+          <br><br>
+          <p>Best Regards,</p>
+          <p><strong>Gaurav Bhatt</strong></p>
+        </div>
+      </body>
+    </html>
     `;
 
-  const receiver = {
-    from: process.env.EMAIL, // Your system email
-    to: user.email, // User's email
-    subject,
-    text,
-    html: htmlContent,
-  };
+    const receiver = {
+      from: process.env.EMAIL,
+      to: customer,
+      subject,
+      text: `Your order has been placed successfully. Order ID: ${order.id}. Total Amount: ₹${order.totalAmount}.
+      Product: ${productName} (Quantity: ${productQuantity}).`,
+      html: htmlContent,
+    };
 
-  try {
-    const ans = await auth_.sendMail(receiver);
-    if (ans) {
-      return { message: 'Email sent' };
+    try {
+      const ans = await auth_.sendMail(receiver);
+      if (ans) {
+        return { message: "Email sent" };
+      }
+    } catch (error) {
+      console.error("Error while sending email:", error);
+      return { message: "Email not sent" };
     }
-  } catch (error) {
-    console.error(`Error while sending email to ${user.email}:`, error);
-    return { message: 'Email not sent' };
-
   }
 }
 
 async function sendOtpEmail(email: string, name: string, otp: string) {
-  console.log("Sending OTP email to:", email);
-  console.log(process.env.EMAIL);
-  console.log(process.env.PASSWORD);
-    const mailOptions = {
+
+  const mailOptions = {
     from: process.env.EMAIL,
     to: email,
     subject: "Your OTP Code",
@@ -148,7 +191,6 @@ async function sendOtpEmail(email: string, name: string, otp: string) {
   };
 
   try {
-    console.log("before sending email");
     const ans = await auth_.sendMail(mailOptions);
     if (ans) {
       return { message: 'Email sent' };
@@ -156,8 +198,8 @@ async function sendOtpEmail(email: string, name: string, otp: string) {
   } catch (error) {
     console.error('Error while sending email:', error);
     return { message: 'Email not sent' };
-}
+  }
 }
 
-export { sendAccountDeletionEmail, sendAccountCreationEmail, sendOtpEmail };
+export { sendUserEvent, sendOtpEmail , sendOrderEvent};
 

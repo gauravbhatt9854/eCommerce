@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
+import { sendOrderEvent } from "@/app/services/rotue";
 
 // Generate the Razorpay signature for verification
 const generatedSignature = (
@@ -32,9 +33,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch the order from the database using DB_ORDER_ID
-    const order = await prisma.order.findMany({
-      where: { id: DB_ORDER_ID }, // Assuming the primary key is "id"
+    const order = await prisma.order.findFirst({
+      where: { id: DB_ORDER_ID }, // Assuming DB_ORDER_ID is defined
+      include: {
+        User: true,  // Includes related user data
+        Product: true, // Includes related product data
+      },
     });
+    
 
     // Check if the order exists and razorpay_order_id matches
     if (!order) {
@@ -44,7 +50,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if(order[0].razorpay_order_id !== razorpay_order_id) {
+    if(order.razorpay_order_id !== razorpay_order_id) {
       return NextResponse.json(
         { message: "Order not found", isOk: false },
         { status: 404 })
@@ -52,9 +58,11 @@ export async function POST(request: NextRequest) {
 
     const updatedOrder = await prisma.order.update({
       where: { id: DB_ORDER_ID },
-      data: { paymentStatus: "PAID",  razorpay_payment_id : razorpay_payment_id}, // Update status to "success"
-    });
+      data: { paymentStatus: "PAID",  razorpay_payment_id : razorpay_payment_id},
+    }
+  );
 
+    await sendOrderEvent(order , "order.placed");
 
     return NextResponse.json(
       { message: "Payment verified and order updated successfully", isOk: true },
