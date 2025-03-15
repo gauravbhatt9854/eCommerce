@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
-import { sendOrderEvent } from "@/app/services/rotue";
+import { sendOrderEvent } from "@/app/api/services/rotue";
 
 // Generate the Razorpay signature for verification
 const generatedSignature = (

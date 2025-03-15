@@ -36,6 +36,11 @@ export async function POST(req: NextRequest) {
         }
 
         // Delete order from database
+
+        await prisma.reportedProblem.deleteMany({
+            where: { orderId: id },
+        });
+        
         await prisma.order.delete({
             where: { id },
         });
