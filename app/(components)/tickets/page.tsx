@@ -75,6 +75,29 @@ const ReportsPage: React.FC = () => {
     }
   };
 
+
+
+  const handleDeleteReport = async (reportId: string) => {
+  const confirmDelete = window.confirm("Do you really want to delete this report?");
+  if (!confirmDelete) return;
+
+  try {
+    const response = await fetch(`/admin/ticket/delete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reportId }),
+    });
+
+    if (response.ok) {
+      setTickets((prevReports) => prevReports.filter((report) => report.id !== reportId));
+    } else {
+      console.error("Failed to delete report");
+    }
+  } catch (error) {
+    console.error("Failed to delete report:", error);
+  }
+};
+
   const handleChatClick = (ticketId: string) => {
     setSelectedTicketId(ticketId);
     setShowChat((prevState) => ({
@@ -164,6 +187,13 @@ const ReportsPage: React.FC = () => {
                     onClick={() => handleStatusChange(report.id)}
                   >
                     Update Status
+                  </button>
+
+                  <button
+                    className="w-full mt-2 py-2 px-4 bg-rose-300 text-white font-semibold rounded-lg shadow-md hover:bg-rose-600 transition-colors duration-300"
+                    onClick={() => handleDeleteReport(report.id)}
+                  >
+                    Delete Report
                   </button>
                 </div>
 

@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { User , Order } from '@prisma/client';
+import { User , Order , ReportedProblem } from '@prisma/client';
 
 const auth_ = nodemailer.createTransport({
   service: 'gmail',
@@ -97,7 +97,6 @@ async function sendUserEvent(user: User, eventName: string) {
     }
   }
 }
-
 
 async function sendOrderEvent(order: Order, eventName: string) {
   console.log("event Name : " , eventName);
@@ -201,5 +200,66 @@ async function sendOtpEmail(email: string, name: string, otp: string) {
   }
 }
 
-export { sendUserEvent, sendOtpEmail , sendOrderEvent};
+async function sendProblemEvent(reportedProblem : ReportedProblem, eventName:string) {
+  console.log("Event Name:", eventName);
+  
+  let customer = reportedProblem.User?.email;
+  let name = reportedProblem.User?.name;
+  let orderId = reportedProblem.orderId;
+  let category = reportedProblem.category;
+  let description = reportedProblem.description;
+  let status = reportedProblem.status;
+  
+  if (!customer || !name || !orderId) {
+    return { message: "Invalid problem details" };
+  }
+  
+  if (eventName === "problem.reported" || eventName === "problem.resolved") {
+    let subject = eventName === "problem.reported" 
+      ? "Issue Reported for Your Order" 
+      : "Issue Resolved for Your Order";
+    
+    const htmlContent = `
+    <html>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
+        <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+          <h2 style="color: ${eventName === "problem.reported" ? "#FF5722" : "#4CAF50"};">${subject}</h2>
+          <p style="font-size: 16px;">Dear ${name},</p>
+          <p style="font-size: 14px;">Your issue regarding order <strong>${orderId}</strong> has been ${eventName === "problem.reported" ? "reported" : "resolved"}.</p>
+          <p style="font-size: 14px;"><strong>Category:</strong> ${category}</p>
+          <p style="font-size: 14px;"><strong>Description:</strong> ${description}</p>
+          <p style="font-size: 14px;"><strong>Current Status:</strong> ${status}</p>
+          
+          <br>
+          <a href="https://oc.golu.codes/orders/${orderId}/issues" style="display: inline-block; padding: 12px 20px; font-size: 16px; color: #fff; background-color: ${eventName === "problem.reported" ? "#FF5722" : "#4CAF50"}; text-decoration: none; border-radius: 5px;">View Issue</a>
+          <br><br>
+          <p>We will update you on any further progress.</p>
+          <p>Best Regards,</p>
+          <p><strong>Gaurav Bhatt</strong></p>
+        </div>
+      </body>
+    </html>
+    `;
+    
+    const receiver = {
+      from: process.env.EMAIL,
+      to: customer,
+      subject,
+      text: `Your issue has been ${eventName === "problem.reported" ? "reported" : "resolved"} successfully. Order ID: ${orderId}. Category: ${category}. Status: ${status}.`,
+      html: htmlContent,
+    };
+
+    try {
+      const ans = await auth_.sendMail(receiver);
+      if (ans) {
+        return { message: "Email sent" };
+      }
+    } catch (error) {
+      console.error("Error while sending email:", error);
+      return { message: "Email not sent" };
+    }
+  }
+}
+
+export { sendUserEvent, sendOtpEmail , sendOrderEvent ,sendProblemEvent};
 

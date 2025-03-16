@@ -52,6 +52,7 @@ async function uploadMultipleFilesToMinIO(files: File[]): Promise<string[]> {
  * @param request - The incoming request
  * @returns API response
  */
+
 export async function POST(request: NextRequest): Promise<Response> {
   try {
     // Step 1: Extract Token from Cookies
@@ -73,13 +74,17 @@ export async function POST(request: NextRequest): Promise<Response> {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
+    
     // Step 3: Parse FormData
     const formData = await request.formData();
+    
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
     const price = parseFloat(formData.get("price") as string);
-    const categoryId = formData.get("categoryId") as string;
+    const categoryIds = formData.getAll("categoryIds") as string[];
     const files = formData.getAll("images") as File[];
+
+    console.log(categoryIds);
 
     if (!files.length) {
       return NextResponse.json({ error: "At least one image is required." }, { status: 400 });
@@ -95,7 +100,7 @@ export async function POST(request: NextRequest): Promise<Response> {
           name,
           description,
           price,
-          categoryId,
+          categoryIds, // Store array of category IDs
           imageUrls: fileUrls, // Save uploaded image URLs
         },
       });
@@ -109,3 +114,5 @@ export async function POST(request: NextRequest): Promise<Response> {
     return NextResponse.json({ error: "Unexpected error occurred." }, { status: 500 });
   }
 }
+
+

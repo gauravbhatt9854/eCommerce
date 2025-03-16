@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
+import { sendProblemEvent } from "@/app/api/services/rotue";
 
 export async function POST(req: NextRequest) {
   try {
@@ -35,6 +36,14 @@ export async function POST(req: NextRequest) {
       where: { id: reportId },
       data: { status },
     });
+
+    const fetchedReport = await prisma.reportedProblem.findUnique({
+      where: { id: reportId },
+      include: { Order: true, User: true },
+    });
+
+    const msg = await sendProblemEvent(fetchedReport, "problem.resolved");
+    console.log(msg?.message);
 
     return NextResponse.json(updatedReport);
   } catch (error) {

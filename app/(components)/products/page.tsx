@@ -9,25 +9,28 @@ import ProductModal from "./child/ProductModal";
 const ProductsPage = () => {
   const { isAdmin } = useAppState();
   const router = useRouter();
-  const [products, setProducts] = useState<any[]>([]);
+  const [allProducts, setAllProducts] = useState<any[]>([]); // Store all products
+  const [products, setProducts] = useState<any[]>([]); // Filtered products
   const [categories, setCategories] = useState<any[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | "all">("all");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
+  // ✅ Fetch categories & products (API call only once)
   useEffect(() => {
     fetchCategories();
-    fetchProducts(selectedCategory);
-  }, [selectedCategory]);
+    fetchProducts();
+  }, []);
 
-  const fetchProducts = async (category: string) => {
+  const fetchProducts = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/products?category=${category !== "all" ? category : ""}`);
+      const res = await fetch(`/api/products`);
       if (!res.ok) console.log("Failed to fetch products");
       const data = await res.json();
-      setProducts(data);
+      setAllProducts(data); // Store all products
+      setProducts(data); // Initialize with all products
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
@@ -46,6 +49,27 @@ const ProductsPage = () => {
     }
   };
 
+  // ✅ Filter products based on selected categories (without API call)
+  useEffect(() => {
+    if (selectedCategories.length === 0) {
+      setProducts(allProducts); // Show all if no category is selected
+    } else {
+      setProducts(
+        allProducts.filter((product) =>
+          selectedCategories.every((catId) => product.categoryIds.includes(catId))
+        )
+      );
+    }
+  }, [selectedCategories, allProducts]);
+
+  // ✅ Toggle category selection
+  const toggleCategory = (id: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(id) ? prev.filter((catId) => catId !== id) : [...prev, id]
+    );
+  };
+
+  // ✅ Handle new category submission
   const handleNewCategorySubmit = (categoryName: string) => {
     fetch("/api/categories/add", {
       method: "POST",
@@ -70,25 +94,26 @@ const ProductsPage = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-3xl font-bold text-center mb-8">Products</h1>
 
-      {/* Filter by Category */}
-      <div className="mb-6 flex space-x-4">
-        <select
-          className="px-4 py-2 border rounded-md"
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-        >
-          <option value="all">All Categories</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
+      {/* Multi-Select Categories */}
+      <div className="mb-6 flex flex-wrap gap-2">
+        {categories.map((category) => (
+          <button
+            key={category.id}
+            onClick={() => toggleCategory(category.id)}
+            className={`px-3 py-1 rounded-md border ${
+              selectedCategories.includes(category.id) ? "bg-blue-500 text-white" : "bg-gray-200"
+            }`}
+          >
+            {category.name}
+          </button>
+        ))}
       </div>
 
       {isAdmin && (
         <div className="mb-8 space-x-4">
-          <button onClick={() => setIsCategoryModalOpen(true)} className="px-4 py-2 bg-blue-500 text-white rounded-md">Add Category</button>
+          <button onClick={() => setIsCategoryModalOpen(true)} className="px-4 py-2 bg-blue-500 text-white rounded-md">
+            Add Category
+          </button>
           <button onClick={() => setIsProductModalOpen(true)} className="px-4 py-2 bg-green-500 text-white rounded-md" disabled={!categories.length}>
             Add Product
           </button>
@@ -98,10 +123,15 @@ const ProductsPage = () => {
       <CategoryModal isOpen={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)} onSubmit={handleNewCategorySubmit} />
       <ProductModal isOpen={isProductModalOpen} onClose={() => setIsProductModalOpen(false)} categories={categories} />
 
+      {/* Products Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} descHandler={(id) => router.push(`/products/${id}`)} />
-        ))}
+        {products.length > 0 ? (
+          products.map((product) => (
+            <ProductCard key={product.id} product={product} descHandler={(id) => router.push(`/products/${id}`)} />
+          ))
+        ) : (
+          <p className="text-center col-span-full text-gray-500">No products found.</p>
+        )}
       </div>
     </div>
   );

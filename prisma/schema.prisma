@@ -8,11 +8,10 @@ datasource db {
 }
 
 model Category {
-  id        String    @id @default(uuid())
-  name      String    @unique
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  Product   Product[]
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model CustomerSupportMessage {
@@ -61,13 +60,12 @@ model Product {
   price       Int
   discount    Int?       @default(0)
   stock       Int        @default(0)
-  categoryId  String
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   imageUrls   String[]
   isActive    Boolean    @default(true)
+  categoryIds String[]
   Order       Order[]
-  Category    Category   @relation(fields: [categoryId], references: [id])
   Review      Review[]
   Wishlist    Wishlist[]
 }

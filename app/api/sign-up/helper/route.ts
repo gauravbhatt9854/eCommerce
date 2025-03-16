@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import crypto from "crypto";
 import { User } from "@prisma/client";
-import { sendOtpEmail } from "@/app/services/rotue";
+import { sendOtpEmail } from "@/app/api/services/rotue";
 
 export async function generateAndStoreOTP(userId: User["id"]) {
     const otp = crypto.randomInt(100000, 999999).toString(); // Generate 6-digit OTP

@@ -21,6 +21,7 @@ interface AppStateContextType {
   setIsChat: React.Dispatch<React.SetStateAction<boolean>>;
   setIsSupport: React.Dispatch<React.SetStateAction<boolean>>;
   setIsProfile?: React.Dispatch<React.SetStateAction<boolean>>;
+  setUser: React.Dispatch<React.SetStateAction<UserType | null>>;
 }
 
 // Create context
@@ -37,13 +38,13 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch("/services/getUser");
+        const res = await fetch("/api/services/getUser");
         const data = await res.json();
 
         if (res.ok && data.user) {
           const { user: fetchedUser } = data;
 
-          const updatedUser = { ...fetchedUser, fullName: fetchedUser.name, profileUrl: "https://s3.golu.codes/bucket02/296fe121-5dfa-43f4-98b5-db50019738a7.jpg" };
+          const updatedUser = { ...fetchedUser, fullName: fetchedUser.name, profileUrl: "https://s3.golu.codes/bucket02/296fe121-5dfa-43f4-98b5-db50019738a7.jpg"  };
 
           setUser((pre)=>updatedUser);
           setIsAdmin(fetchedUser.role === "ADMIN");
@@ -57,7 +58,7 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
   }, []); // Runs once on mount
 
   return (
-    <AppStateContext.Provider value={{ user, isChat, setIsChat, isSupport, setIsSupport, isAdmin , isProfile, setIsProfile }}>
+    <AppStateContext.Provider value={{ user, setUser , isChat, setIsChat, isSupport, setIsSupport, isAdmin , isProfile, setIsProfile }}>
       {children}
     </AppStateContext.Provider>
   );

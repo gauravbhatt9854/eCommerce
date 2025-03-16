@@ -1,6 +1,6 @@
 import { NextRequest , NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { sendUserEvent } from "@/app/services/rotue";
+import { sendUserEvent } from "@/app/api/services/rotue";
 
 export async function POST(req: NextRequest) {
     try {
