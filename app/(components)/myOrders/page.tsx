@@ -119,7 +119,7 @@ const MyOrdersPage: React.FC = () => {
               <p className="text-gray-600"><span className="font-semibold">Quantity:</span> {order.quantity}</p>
               <p className="text-gray-600"><span className="font-semibold">Payment Status:</span> {order?.paymentStatus}</p>
               <p className="text-gray-600"><span className="font-semibold">Delivery Status:</span> {order?.deliveryStatus}</p>
-              <p className="text-gray-600"><span className="font-semibold">Price:</span> ${(order.price / 100).toFixed(2)}</p>
+              <p className="text-gray-600"><span className="font-semibold">Price:</span> ₹{(order.price).toFixed(2)}</p>
               <p className="text-gray-600"><span className="font-semibold">Order Date:</span> {new Date(order.createdAt).toLocaleDateString()}</p>
               <p className="text-gray-600"><span className="font-semibold">Delivery Date:</span> {new Date(order?.deliveryDate).toLocaleDateString()}</p>
               <p className="text-gray-600"><span className="font-semibold">Delivery Partner:</span> {order?.DeliveryPerson?.name}</p>

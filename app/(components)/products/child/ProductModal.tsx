@@ -17,7 +17,7 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
     price: "",
     stock: "",
     discount: "",
-    categoryId: "",
+    categoryIds: [] as string[],
     images: [] as File[],
   });
 
@@ -29,7 +29,7 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
       formData.append("name", product.name);
       formData.append("description", product.description);
       formData.append("price", product.price);
-      formData.append("categoryId", product.categoryId);
+      product.categoryIds.forEach((id) => formData.append("categoryIds", id));
   
       product.images.forEach((file: File, index: number) => {
         formData.append("images", file, `image-${index + 1}`);
@@ -73,6 +73,16 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
     }
   };
 
+  const toggleCategory = (id: string) => {
+    setNewProduct((prev) => {
+      if (prev.categoryIds.includes(id)) {
+        return { ...prev, categoryIds: prev.categoryIds.filter((catId) => catId !== id) };
+      } else {
+        return { ...prev, categoryIds: [...prev.categoryIds, id] };
+      }
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newProduct.images.length < 1) {
@@ -86,7 +96,7 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
       price: "",
       stock: "",
       discount: "",
-      categoryId: "",
+      categoryIds: [],
       images: [],
     });
     onClose();
@@ -128,19 +138,21 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
             value={newProduct.price}
             onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
           />
-          <select
-            className="border p-2 w-full rounded"
-            required
-            value={newProduct.categoryId}
-            onChange={(e) => setNewProduct({ ...newProduct, categoryId: e.target.value })}
-          >
-            <option value="">Select Category</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
+          <div>
+            <label className="block font-medium mb-2">Select Categories ({newProduct.categoryIds.length})</label>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => toggleCategory(cat.id)}
+                  className={`px-3 py-1 rounded-md border ${newProduct.categoryIds.includes(cat.id) ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+          </div>
           <input
             type="file"
             multiple
