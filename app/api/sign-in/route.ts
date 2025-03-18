@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
+import { sendLoginWithNewDeviceAlert } from '../services/rotue';
 const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
 
 export async function POST(req: NextRequest) {
@@ -47,6 +48,36 @@ export async function POST(req: NextRequest) {
             sameSite: 'strict',
             maxAge: 3600, // 1 hour in seconds
         });
+
+        const userAgent: string = req.headers.get("user-agent") || "Unknown";
+        const ip: string = req.headers.get("x-forwarded-for") || req.ip || "Unknown IP";
+        const referer: string = req.headers.get("referer") || "Direct Access";
+        const language: string = req.headers.get("accept-language") || "Unknown";
+        const cookies: string = req.headers.get("cookie") || "No Cookies";
+        const time: string = new Date().toISOString();
+    
+        // Response object
+
+        interface EventDetails {
+            userAgent: string;
+            ip: string;
+            referer: string;
+            language: string;
+            cookies: string;
+            time: string;
+          }
+        const responseData:EventDetails = {
+            userAgent,
+            ip,
+            referer,
+            language,
+            cookies,
+            time
+        };
+
+        // console.log("User logged in", responseData);
+        await sendLoginWithNewDeviceAlert(email , "new device login alert" , responseData);
+    
         
         return response;
     } catch (error) {
