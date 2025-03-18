@@ -261,5 +261,64 @@ async function sendProblemEvent(reportedProblem : ReportedProblem, eventName:str
   }
 }
 
-export { sendUserEvent, sendOtpEmail , sendOrderEvent ,sendProblemEvent};
+
+interface EventDetails {
+  userAgent: string;
+  ip: string;
+  referer: string;
+  language: string;
+  cookies: string;
+  time: string;
+}
+
+async function sendLoginWithNewDeviceAlert(email: string, eventName: string, eventDetails: EventDetails) {
+  if (!email || !eventName) {
+    throw new Error('Invalid email or event name');
+  }
+
+  const subject = `Event Notification: ${eventName}`;
+  const htmlContent = `
+    <html>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
+        <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+          <h2 style="color: #4CAF50;">Event Notification</h2>
+          <p style="font-size: 16px;">Dear User,</p>
+          <p style="font-size: 14px;">An event has been recorded for your account.</p>
+          <p style="font-size: 14px;"><strong>Event:</strong> ${eventName}</p>
+          <p style="font-size: 14px;"><strong>Time:</strong> ${eventDetails.time}</p>
+          <hr>
+          <h3>Event Details</h3>
+          <p style="font-size: 14px;"><strong>User Agent:</strong> ${eventDetails.userAgent}</p>
+          <p style="font-size: 14px;"><strong>IP Address:</strong> ${eventDetails.ip}</p>
+          <p style="font-size: 14px;"><strong>Referer:</strong> ${eventDetails.referer}</p>
+          <p style="font-size: 14px;"><strong>Language:</strong> ${eventDetails.language}</p>
+          <p style="font-size: 14px;"><strong>Cookies:</strong> ${eventDetails.cookies}</p>
+          <br>
+          <p>If this wasn't you, please contact support.</p>
+          <br>
+          <p>Best Regards,</p>
+          <p><strong>Gaurav Bhatt</strong></p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const mailOptions = {
+    from: process.env.EMAIL,
+    to: email,
+    subject,
+    text: `An event has been recorded for your account. Event: ${eventName}. Time: ${eventDetails.time}.`,
+    html: htmlContent,
+  };
+
+  try {
+    await auth_.sendMail(mailOptions);
+    return { message: 'Email sent' };
+  } catch (error) {
+    console.error('Error while sending email:', error);
+    throw new Error('Email not sent');
+  }
+}
+
+export { sendUserEvent, sendOtpEmail , sendOrderEvent ,sendProblemEvent , sendLoginWithNewDeviceAlert};
 
