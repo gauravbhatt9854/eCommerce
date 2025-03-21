@@ -17,7 +17,7 @@ const Nav = () => {
   return (
     <div className="flex justify-between -600 py-4 px-10">
         <Avatar onClick={() => setIsProfile((pre) => pre!=undefined &&  !pre)}>
-          <AvatarImage src={user.profileUrl} />
+          <AvatarImage src={process.env.NEXT_PUBLIC_DEFAULT_PROFILE_URL} />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         {isProfile && <Profile />}

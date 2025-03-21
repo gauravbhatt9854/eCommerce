@@ -52,7 +52,7 @@ const Profile = () => {
       <Card>
         <CardHeader className="flex flex-col items-center">
           <Image
-            src={user?.profileUrl || "/default-avatar.png"}
+            src={user?.profileUrl || "/OIP.jpg"}
             alt="Profile Picture"
             width={80}
             height={80}
