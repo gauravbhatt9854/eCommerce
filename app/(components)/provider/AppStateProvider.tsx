@@ -44,7 +44,7 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
         if (res.ok && data.user) {
           const { user: fetchedUser } = data;
 
-          const updatedUser = { ...fetchedUser, fullName: fetchedUser.name, profileUrl: "https://s3.golu.codes/bucket02/296fe121-5dfa-43f4-98b5-db50019738a7.jpg"  };
+          const updatedUser = { ...fetchedUser, fullName: fetchedUser.name, profileUrl: process.env.NEXT_PUBLIC_DEFAULT_PROFILE_URL! };
 
           setUser((pre)=>updatedUser);
           setIsAdmin(fetchedUser.role === "ADMIN");
