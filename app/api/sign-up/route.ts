@@ -37,12 +37,8 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Generate and store OTP
-    const otp = await generateAndStoreOTP(newUser.id);
-    console.log("Signup successful! OTP sent." , otp);
-
     return NextResponse.json(
-      { message: "Signup successful! OTP sent.", otp },
+      { message: "Account creation done." },
       { status: 200 }
     );
   } catch (error) {
