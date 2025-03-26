@@ -37,6 +37,8 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    await generateAndStoreOTP(newUser.id);
+
     return NextResponse.json(
       { message: "Account creation done." },
       { status: 200 }
