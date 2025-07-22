@@ -8,12 +8,12 @@ import Image from "next/image";
 export default function SupportPage() {
   const handleLinkedInClick = () => {
     
-    window.open("https://www.linkedin.com/in/golubhattuk01", "_blank");
+    window.open("https://www.linkedin.com/in/gauravbhatt9854", "_blank");
   };
 
 
   const handleGithubClick = () => {
-    window.open("https://github.com/golubhattuk01", "_blank");
+    window.open("https://github.com/gauravbhatt9854", "_blank");
   };
 
   return (
@@ -42,7 +42,7 @@ export default function SupportPage() {
             </button>
           </div>
           <p className="flex items-center justify-center text-gray-600 mt-4">
-            <MapPin className="mr-2" /> Almora, Uttarakhand, India
+            <MapPin className="mr-2" /> Noida, India
           </p>
         </CardContent>
       </Card>
