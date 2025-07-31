@@ -14,7 +14,8 @@ const SOCKET_SERVER_URL = process.env.NEXT_PUBLIC_CHAT_BACKEND_URL;
 // Socket Provider Component
 export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
-  const { user} = useAppState();
+  const { user } = useAppState();
+
 
   useEffect(() => {
     if (!SOCKET_SERVER_URL) {
@@ -22,22 +23,55 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       return;
     }
 
-    const newSocket = io(SOCKET_SERVER_URL);
+    const newSocket = io(SOCKET_SERVER_URL, {
+      withCredentials: true,
+    });
+
     setSocket(newSocket);
 
     newSocket.on("connect", () => {
-      // console.log("✅ WebSocket Connected:", newSocket.id);
-      console.log("✅ WebSocket Connected:");
-      
-      // Emit register event after connection
-      if (user) {
-        newSocket.emit("register", {
-          l1: 23,  // Including l1
-          l2: 79,  // Including l2
-          username: user.fullName || "Guest",
-          profileUrl: user.profileUrl || "fallback-image-url",
-        });
+      console.log("✅ WebSocket Connected");
+    });
+
+    newSocket.on("requestRegistration", () => {
+      console.log("📩 Server requested registration");
+
+      if (!user) {
+        console.warn("⚠️ Cannot register without user info");
+        return;
       }
+
+      // Try to get real user location
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+
+          newSocket.emit("register", {
+            lat: latitude,
+            lng: longitude,
+            username: user.fullName || "Guest",
+            profileUrl: user.profileUrl || "fallback-image-url",
+          });
+
+          console.log("📤 Registered with real location:", latitude, longitude);
+        },
+        (error) => {
+          console.warn("⚠️ Location denied or failed, sending dummy location.");
+
+          // Fallback dummy location (e.g., India Gate, Delhi)
+          const dummyLat = 28.6129;
+          const dummyLng = 77.2295;
+
+          newSocket.emit("register", {
+            lat: dummyLat,
+            lng: dummyLng,
+            username: user.fullName || "Guest",
+            profileUrl: user.profileUrl || "fallback-image-url",
+          });
+
+          console.log("📤 Registered with dummy location:", dummyLat, dummyLng);
+        }
+      );
     });
 
     newSocket.on("disconnect", () => {
