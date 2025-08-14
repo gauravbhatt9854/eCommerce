@@ -35,5 +35,8 @@ You can try the platform without creating an account using the following credent
    ```bash
    git clone https://github.com/gauravbhatt9854/eCommerce
 
-   <img width="1913" height="971" alt="image" src="https://github.com/user-attachments/assets/2561446c-e03f-483d-83e3-ea5f30a20933" />
+Screenshots
+
+<img width="1913" height="971" alt="image" src="https://github.com/user-attachments/assets/721c2bfc-b84a-4ef3-9ff3-0985f5c2595a" />
+
 
