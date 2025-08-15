@@ -1,7 +1,7 @@
 "use client"
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import SupportComponent from "./chatPage/page";
+import SupportComponent from "./chatPage/SupportComponent";
 
 interface Ticket {
   id: string;

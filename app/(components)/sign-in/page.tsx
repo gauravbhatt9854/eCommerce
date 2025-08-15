@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import OtpBox from "../sign-up/otp/page"; // Import OTP Box Component
+import OtpBox from "../sign-up/otp/OtpBox "; // Import OTP Box Component
 import Link from "next/link";
 
 const SigninPage = () => {

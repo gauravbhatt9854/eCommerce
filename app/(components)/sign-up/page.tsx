@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import OtpBox from "./otp/page"; // Import OTP Box Component
+import OtpBox from "./otp/OtpBox ";
 
 const SignupPage = () => {
   const router = useRouter();

@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import minioClient from "@/app/admin/minioS3/route";
+import minioClient from "@/app/admin/minioS3/client";
 
 export async function POST(req: Request) {
   const bucket = process.env.MINIO_BUCKET!;

@@ -3,13 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import crypto from "crypto";
 import { User } from "@prisma/client";
-import { sendOtpEmail } from "@/app/api/services/rotue";
+import { sendOtpEmail } from "@/app/api/services/nodemailerServices";
 
 export async function generateAndStoreOTP(userId: User["id"]) {
     const otp = crypto.randomInt(100000, 999999).toString(); // Generate 6-digit OTP
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP valid for 10 minutes
-
-
     const user = await prisma.user.update({
       where: { id: userId },
       data: { otp, otpExpiresAt: expiresAt },

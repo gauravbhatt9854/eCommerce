@@ -21,47 +21,48 @@ const ProductModal = ({ isOpen, onClose, categories }: ProductModalProps) => {
     images: [] as File[],
   });
 
-  const handleNewProductSubmit = async (product: any) => {
-    try {
-      setIsLoading(true);
-  
-      const formData = new FormData();
-      formData.append("name", product.name);
-      formData.append("description", product.description);
-      formData.append("price", product.price);
-      product.categoryIds.forEach((id) => formData.append("categoryIds", id));
-  
-      product.images.forEach((file: File, index: number) => {
-        formData.append("images", file, `image-${index + 1}`);
-      });
-  
-      const response = await fetch("/admin/addProduct", {
-        method: "POST",
-        body: formData,
-      });
-  
-      if(!response.ok) {
-        console.log("Failed to add product");
-        return;
-      }
-  
-      const responseData = await response.json();
-  
-      if (!response.ok) {
-        console.error("❌ Backend Error:", responseData);
-        alert(`Failed to add product! Server says: ${responseData.error || "Unknown error"}`);
-        return;
-      }
-      
-      alert("🎉 Product added successfully!");
-      router.push(`/products/${responseData.product.id}`);
-    } catch (error) {
-      console.error("🚨 Network or Unexpected Error:", error);
-      alert("⚠️ Error adding product. Check console for details.");
-    } finally {
-      setIsLoading(false);
+const handleNewProductSubmit = async (product: any) => {
+  try {
+    setIsLoading(true);
+
+    const formData = new FormData();
+    formData.append("name", product.name);
+    formData.append("description", product.description);
+    formData.append("price", product.price);
+    product.categoryIds.forEach((id: string) => formData.append("categoryIds", id));
+
+    product.images.forEach((file: File, index: number) => {
+      formData.append("images", file, `image-${index + 1}`);
+    });
+
+    const response = await fetch("/admin/addProduct", {
+      method: "POST",
+      body: formData,
+    });
+
+    if(!response.ok) {
+      console.log("Failed to add product");
+      return;
     }
-  };
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      console.error("❌ Backend Error:", responseData);
+      alert(`Failed to add product! Server says: ${responseData.error || "Unknown error"}`);
+      return;
+    }
+    
+    alert("🎉 Product added successfully!");
+    router.push(`/products/${responseData.product.id}`);
+  } catch (error) {
+    console.error("🚨 Network or Unexpected Error:", error);
+    alert("⚠️ Error adding product. Check console for details.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files as FileList | null;

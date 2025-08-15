@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { generateAndStoreOTP } from "../helper/route";
+import { generateAndStoreOTP } from "../helper/generateAndStoreOTP";
 
 export async function POST(req: NextRequest) {
   try {

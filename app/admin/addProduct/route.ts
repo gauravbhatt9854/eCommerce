@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import sharp from "sharp";
-import minioClient from "../minioS3/route";
+import minioClient from "../minioS3/client";
 import prisma from "@/lib/prisma";
 
 import jwt from "jsonwebtoken";

@@ -1,9 +1,8 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
-import { sendProblemEvent } from "@/app/api/services/rotue";
+import { sendProblemEvent } from "@/app/api/services/nodemailerServices";
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,7 +12,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Step 2: Verify Token & Check Admin Role
     let decoded;
     try {
       decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: string };
@@ -24,9 +22,9 @@ export async function POST(req: NextRequest) {
     if (decoded.role !== "ADMIN") {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
+
     const { reportId, status } = await req.json();
 
-    // Validate input data
     if (!reportId || !status) {
       return NextResponse.json({ message: "Invalid data." }, { status: 400 });
     }
@@ -37,13 +35,19 @@ export async function POST(req: NextRequest) {
       data: { status },
     });
 
+    // Fetch the report with related User and Order
     const fetchedReport = await prisma.reportedProblem.findUnique({
       where: { id: reportId },
       include: { Order: true, User: true },
     });
 
-    const msg = await sendProblemEvent(fetchedReport, "problem.resolved");
-    console.log(msg?.message);
+    // Null-check before sending event
+    if (fetchedReport) {
+      const msg = await sendProblemEvent(fetchedReport, "problem.resolved");
+      console.log(msg?.message);
+    } else {
+      console.warn("Report not found for sending event");
+    }
 
     return NextResponse.json(updatedReport);
   } catch (error) {

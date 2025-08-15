@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import minioClient from "../minioS3/route";
+import minioClient from "../minioS3/client";
 import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";

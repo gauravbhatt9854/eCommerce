@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import { sendProblemEvent } from "@/app/api/services/rotue";
+import { sendProblemEvent } from "@/app/api/services/nodemailerServices";
 
 export async function POST(req: NextRequest) {
   try {
