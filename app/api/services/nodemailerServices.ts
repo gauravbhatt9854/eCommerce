@@ -1,15 +1,24 @@
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
 import { User, Order, Product, ReportedProblem } from '@prisma/client';
+dotenv.config();
 
 const auth_ = nodemailer.createTransport({
-  service: 'gmail',
-  secure: true,
+  host: "smtp.zoho.in",   // ya smtp.zoho.com
   port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL,
     pass: process.env.PASSWORD,
   },
 });
+
+// Test sending
+auth_.verify((err, success) => {
+  if (err) console.error("Transport error:", err);
+  else console.log("Server is ready to take messages");
+});
+
 
 // Types including relations
 interface OrderWithRelations extends Order {
@@ -255,7 +264,7 @@ async function sendLoginWithNewDeviceAlert(email: string, eventName: string, eve
 
   try {
     await auth_.sendMail({
-      from: process.env.EMAIL,
+      from: `"ShopEase Support" <${process.env.EMAIL}>`,
       to: email,
       subject: `Event Notification: ${eventName}`,
       text: `An event has been recorded for your account. Event: ${eventName}. Time: ${eventDetails.time}.`,
