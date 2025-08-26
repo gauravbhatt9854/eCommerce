@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { jwtVerify } from 'jose';
+// import { jwtVerify } from 'jose';
 
 // // const publicRoutes = ['/sign-in', '/sign-up', '/forget-password' , '/ads.txt'];
 // const publicRoutes = ['/*'];
@@ -60,5 +60,5 @@ import { jwtVerify } from 'jose';
 
 export async function middleware(request: NextRequest) {
 
-  return 
+  return NextResponse.next();
 }
