@@ -1,5 +1,5 @@
 "use client"
-import AdBanner from './(components)/adsense/AdBanner';
+import AdBanner from './(components)/third-parties/AdBanner';
 import HomePage from './(components)/home/page';
 export default function Home() {
   return (
