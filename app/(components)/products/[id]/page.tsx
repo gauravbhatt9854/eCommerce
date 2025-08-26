@@ -60,7 +60,6 @@ const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaEl
   return (
     <div className="max-w-full min-h-screen px-4 sm:px-6 lg:px-8 py-12 bg-gray-50">
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
-      <h1 className="text-5xl font-bold text-center mb-12 text-gray-800">Product Details</h1>
 
       {product ? (
         <div className="flex flex-col lg:flex-row items-center justify-between gap-16">

@@ -1,33 +1,39 @@
-"use client"
-import {
-  NavigationMenuItem,
-} from "../../TEMP/ui/navigation-menu"
-import { Button } from "../../TEMP/ui/button"
-import Link from "next/link"
-import { useAppState } from "../provider/AppStateProvider"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import Profile from "../profile/page"
+"use client";
+import { useEffect, useState } from "react";
+import { NavigationMenuItem } from "../../TEMP/ui/navigation-menu";
+import { Button } from "../../TEMP/ui/button";
+import Link from "next/link";
+import { useAppState } from "../provider/AppStateProvider";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Profile from '../profile/Profile'; // ✅ client component now
 
 const Nav = () => {
   const { setIsChat, user, isAdmin, isProfile, setIsProfile } = useAppState();
+  const [mounted, setMounted] = useState(false);
 
-  if (!user) return null;
+  // ✅ Prevent hydration mismatch (wait until client is ready)
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
 
   return (
-    <div className="flex justify-between -600 py-4 px-10">
-      <Avatar onClick={() => setIsProfile?.(prev => !prev)}>
-        <AvatarImage src={process.env.NEXT_PUBLIC_DEFAULT_PROFILE_URL} />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
+    <div className="flex justify-between py-4 px-10 items-center">
+      {user && (
+        <Avatar onClick={() => setIsProfile?.((prev) => !prev)} className="cursor-pointer">
+          <AvatarImage src={process.env.NEXT_PUBLIC_DEFAULT_PROFILE_URL || "/default.png"} />
+          <AvatarFallback>U</AvatarFallback>
+        </Avatar>
+      )}
 
       {isProfile && <Profile />}
 
       <NavigationMenuItem>
         <Link href="/"><Button>Home</Button></Link>
       </NavigationMenuItem>
+
       <NavigationMenuItem>
         <Link href="/products"><Button>Store</Button></Link>
       </NavigationMenuItem>
+
       <NavigationMenuItem>
         <Link href="/myOrders"><Button>My Orders</Button></Link>
       </NavigationMenuItem>
@@ -50,11 +56,19 @@ const Nav = () => {
         </Link>
       )}
 
-      <NavigationMenuItem>
-        <Button onClick={() => setIsChat?.(prev => !prev)}>Chat</Button>
-      </NavigationMenuItem>
-    </div>
-  )
-}
+      {user && (
+        <NavigationMenuItem>
+          <Button onClick={() => setIsChat?.((prev) => !prev)}>Chat</Button>
+        </NavigationMenuItem>
+      )}
 
-export default Nav
+      {!user && (
+        <NavigationMenuItem>
+          <Link href="/sign-in"><Button>Login</Button></Link>
+        </NavigationMenuItem>
+      )}
+    </div>
+  );
+};
+
+export default Nav;

@@ -2,6 +2,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Order } from "@prisma/client";
 import SupportComponent from "../tickets/chatPage/SupportComponent";
+import { useAppState } from "../provider/AppStateProvider";
+import { useRouter } from "next/navigation";
 
 // Define type including relations
 type OrderWithRelations = Order & {
@@ -11,6 +13,21 @@ type OrderWithRelations = Order & {
 };
 
 const MyOrdersPage: React.FC = () => {
+
+  const { user } = useAppState();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      // Alert pehle dikhega
+      const confirmed = alert("Please log in to view your orders.");
+      // Jaise hi OK dabaya, turant redirect
+      router.push("/sign-in");
+    }
+  }, [user, router]);
+
+  if (!user) return null; // jab tak redirect ho raha hai kuch mat dikhana
+
   const [orders, setOrders] = useState<OrderWithRelations[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

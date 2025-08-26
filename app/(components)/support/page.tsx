@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Linkedin, Twitter, Github, MapPin } from "lucide-react";
+import { Linkedin, Github, MapPin } from "lucide-react";
 import Image from "next/image";
 
 export default function SupportPage() {

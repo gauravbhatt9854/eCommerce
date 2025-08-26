@@ -1,21 +1,34 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useAppState } from "../provider/AppStateProvider";
 
 const Profile = () => {
   const { user, setUser } = useAppState();
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const [updatedUser, setUpdatedUser] = useState({
     userId: user?.id || "",
     fullName: user?.fullName || "",
     phone: user?.phone || "",
   });
+
+  // ✅ Keep updatedUser in sync with context user
+  useEffect(() => {
+    if (user) {
+      setUpdatedUser({
+        userId: user.id || "",
+        fullName: user.fullName || "",
+        phone: user.phone || "",
+      });
+    }
+  }, [user]);
 
   const handleEditProfile = async () => {
     if (editing) {
@@ -44,7 +57,8 @@ const Profile = () => {
 
   const handleLogout = async () => {
     await fetch("/api/logout", { method: "GET" });
-    window.location.href = "/sign-in";
+    setUser(() => null);
+    router.push("/sign-in");
   };
 
   return (
@@ -74,7 +88,8 @@ const Profile = () => {
             <strong>Email:</strong> {user?.email || "not available"}
           </p>
           <p>
-            <strong>Phone:</strong> {editing ? (
+            <strong>Phone:</strong>{" "}
+            {editing ? (
               <Input
                 value={updatedUser.phone}
                 onChange={(e) => setUpdatedUser({ ...updatedUser, phone: e.target.value })}

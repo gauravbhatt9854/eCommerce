@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAppState } from "../../../provider/AppStateProvider";
+
 
 interface PaymentButtonProps {
   productId: string;
@@ -9,10 +11,19 @@ interface PaymentButtonProps {
 }
 
 const PaymentButton = ({ productId, price, userEmail }: PaymentButtonProps) => {
-  const [loading, setLoading] = useState(false);
+
+  const { user } = useAppState();
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const handlePayment = async () => {
+    if (!user) {
+      // Alert pehle dikhega
+      const confirmed = alert("Please log in to view your orders.");
+      // Jaise hi OK dabaya, turant redirect
+      router.push("/sign-in");
+      return null;
+    }
     if (!price || price <= 0) return alert("Invalid product price!");
     setLoading(true);
 

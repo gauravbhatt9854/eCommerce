@@ -9,21 +9,27 @@ const MINIO_BUCKET = process.env.MINIO_BUCKET!;
 export async function GET(request: NextRequest) {
   try {
     const token = request.cookies.get("token")?.value;
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    let role = "";
 
-    let decoded;
-    try {
-      decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: string };
-    } catch (error) {
-      return NextResponse.json({ error: "Invalid Token" }, { status: 401 });
+
+    if (!token) role = "USER";
+    else {
+      let decoded;
+      try {
+        decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: string };
+        role = decoded?.role;
+      } catch (error) {
+        return NextResponse.json({ error: "Invalid Token" }, { status: 401 });
+      }
     }
+
 
     // Get category filter from query parameters
     const { searchParams } = new URL(request.url);
     const categoryFilter = searchParams.get("category") || "";
 
     // Define product query based on user role
-    const productQuery: any = decoded.role === "ADMIN"
+    const productQuery: any = role === "ADMIN"
       ? {} // Admin can view all products
       : { isActive: true }; // Normal users see only active products
 
