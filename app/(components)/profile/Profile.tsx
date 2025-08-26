@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { useAppState } from "../provider/AppStateProvider";
 
 const Profile = () => {
-  const { user, setUser } = useAppState();
+  const { user, setUser , isProfile , setIsProfile } = useAppState();
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -58,6 +58,7 @@ const Profile = () => {
   const handleLogout = async () => {
     await fetch("/api/logout", { method: "GET" });
     setUser(() => null);
+    if (isProfile && setIsProfile) setIsProfile(()=> false);
     router.push("/sign-in");
   };
 
