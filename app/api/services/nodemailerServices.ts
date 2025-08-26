@@ -30,6 +30,8 @@ interface ReportedProblemWithRelations extends ReportedProblem {
   User: User;
 }
 
+
+const FROM = `"ShopEase Support" <${process.env.EMAIL}>`;
 // ----------------- USER EVENTS -----------------
 async function sendUserEvent(user: User, eventName: string) {
   const customer = user.email;
@@ -80,7 +82,7 @@ async function sendUserEvent(user: User, eventName: string) {
 
   try {
     const ans = await auth_.sendMail({
-      from: process.env.EMAIL,
+      from: FROM,
       to: customer,
       subject,
       text: textContent,
@@ -131,7 +133,7 @@ async function sendOrderEvent(order: OrderWithRelations, eventName: string) {
 
     try {
       const ans = await auth_.sendMail({
-        from: process.env.EMAIL,
+        from: FROM,
         to: customer,
         subject: "Order Placed Successfully",
         text: textContent,
@@ -164,7 +166,7 @@ async function sendOtpEmail(email: string, name: string, otp: string) {
 
   try {
     const ans = await auth_.sendMail({
-      from: process.env.EMAIL,
+      from: FROM,
       to: email,
       subject: "Your OTP Code",
       text: `Your OTP code is: ${otp}. Valid for 10 minutes.`,
@@ -213,7 +215,7 @@ async function sendProblemEvent(problem: ReportedProblemWithRelations, eventName
 
   try {
     const ans = await auth_.sendMail({
-      from: process.env.EMAIL,
+      from: FROM,
       to: customer,
       subject,
       text: textContent,
@@ -264,7 +266,7 @@ async function sendLoginWithNewDeviceAlert(email: string, eventName: string, eve
 
   try {
     await auth_.sendMail({
-      from: `"ShopEase Support" <${process.env.EMAIL}>`,
+      from: FROM,
       to: email,
       subject: `Event Notification: ${eventName}`,
       text: `An event has been recorded for your account. Event: ${eventName}. Time: ${eventDetails.time}.`,
