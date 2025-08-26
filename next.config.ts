@@ -2,13 +2,24 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  
+
   eslint: {
     // Option to disable ESLint during builds
     ignoreDuringBuilds: true,
   },
   images: {
-    domains: ["s3.golu.codes" , "golu.codes"], // Add your MinIO domain here
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "s3.golu.codes",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "golu.codes",
+        pathname: "/**",
+      },
+    ],
   },
 };
 

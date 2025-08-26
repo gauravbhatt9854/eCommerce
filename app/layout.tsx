@@ -4,16 +4,19 @@ import Nav from './(components)/nav/page'
 import { AppStateProvider } from './(components)/provider/AppStateProvider'
 import ChatComponent from './(components)/globalChat/page'
 import { SocketProvider } from "./(components)/provider/SocketProvider";
-import Script from 'next/script'
-
+import Adsense from './(components)/adsense/Adsense'
+import Head from 'next/head'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <AppStateProvider>
       <SocketProvider>
         <html lang="en">
-          <Script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT_ID}`}></Script>
+          <head>
+            <Adsense pId={process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT_ID!} />
+          </head>
           <body className='relative'>
+
             <ChatComponent />
             <header>
             </header>

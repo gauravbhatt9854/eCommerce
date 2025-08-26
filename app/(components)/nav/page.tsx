@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Profile from "../profile/page"
 
 const Nav = () => {
-  const { setIsChat, user, isAdmin , isProfile , setIsProfile } = useAppState();
+  const { setIsChat, user, isAdmin, isProfile, setIsProfile } = useAppState();
 
   if (!user) return null;
 
