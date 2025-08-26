@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
       { expiresIn: '1h' }
     );
 
-    // Set cookie
+    // Set cookie + return response
     const response = NextResponse.json({
       message: 'Login successful',
       user: { id: user.id, name: user.name, email: user.email, role: user.role, phone: user.phone }
@@ -53,33 +53,23 @@ export async function POST(req: NextRequest) {
     });
 
     // Collect event details for login alert
-    const userAgent: string = req.headers.get("user-agent") || "Unknown";
-    const ip: string = req.headers.get("x-forwarded-for") || "Unknown IP";
-    const referer: string = req.headers.get("referer") || "Direct Access";
-    const language: string = req.headers.get("accept-language") || "Unknown";
-    const cookies: string = req.headers.get("cookie") || "No Cookies";
-    const time: string = new Date().toISOString();
-
-    interface EventDetails {
-      userAgent: string;
-      ip: string;
-      referer: string;
-      language: string;
-      cookies: string;
-      time: string;
-    }
-
-    const eventData: EventDetails = {
-      userAgent,
-      ip,
-      referer,
-      language,
-      cookies,
-      time
+    const eventData = {
+      userAgent: req.headers.get("user-agent") || "Unknown",
+      ip: req.headers.get("x-forwarded-for") || "Unknown IP",
+      referer: req.headers.get("referer") || "Direct Access",
+      language: req.headers.get("accept-language") || "Unknown",
+      cookies: req.headers.get("cookie") || "No Cookies",
+      time: new Date().toISOString()
     };
 
-    // Send new device login alert
-    await sendLoginWithNewDeviceAlert(email, "new device login alert", eventData);
+    // Fire-and-forget email (no await → won't block response)
+    sendLoginWithNewDeviceAlert(email, "new device login alert", eventData)
+      .then((emailResult) => {
+        console.log("Email Result:", emailResult.message);
+      })
+      .catch((err) => {
+        console.error("Email send failed:", err);
+      });
 
     return response;
 
