@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const publicRoutes = ['/sign-in', '/sign-up', '/forget-password'];
+const publicRoutes = ['/sign-in', '/sign-up', '/forget-password' , '/ads.txt'];
 const adminRoutes = ['/admin'];
 
 // ✅ Use `Uint8Array` for secret key (Edge Runtime compatible)
