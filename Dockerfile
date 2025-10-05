@@ -1,5 +1,5 @@
 # Step 1: Use official Node.js image as base
-FROM node:18
+FROM node:22
 #dummy hook sending
 
 # Step 2: Set working directory inside the container
