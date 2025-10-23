@@ -14,7 +14,7 @@ COPY package*.json ./
 RUN npm install
 # RUN npm install prisma
 RUN npx prisma db pull
-RUN npx prism generate
+RUN npx prisma generate
 
 # Step 5: Copy the rest of the app
 
