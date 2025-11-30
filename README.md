@@ -1,6 +1,6 @@
 # ShopEase – Online Marketplace Platform
 
-**Live Demo:** [oc.golu.codes](https://oc.golu.codes)  
+**Live Demo:** [oc.9854.me](https://oc.9854.me)  
 **Duration:** Jan 2025 – Mar 2025  
 
 ShopEase is a full-stack online marketplace platform that allows users to browse products, manage orders, and securely complete transactions. The project focuses on building a robust, scalable, and secure e-commerce experience.

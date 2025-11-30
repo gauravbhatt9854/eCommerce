@@ -51,7 +51,7 @@ async function sendUserEvent(user: User, eventName: string) {
             <h2 style="color: #4CAF50;">Welcome to Our Family, ${name}!</h2>
             <p>Thank you for registering with us. Your journey starts now!</p>
             <br>
-            <a href="https://oc.golu.codes" style="display: inline-block; padding: 12px 20px; font-size: 16px; color: #fff; background-color: #4CAF50; text-decoration: none; border-radius: 5px;">Continue Shopping</a>
+            <a href="https://oc.9854.me" style="display: inline-block; padding: 12px 20px; font-size: 16px; color: #fff; background-color: #4CAF50; text-decoration: none; border-radius: 5px;">Continue Shopping</a>
             <br><br>
             <p>Best Regards,</p>
             <p><strong>Gaurav Bhatt</strong></p>
@@ -69,7 +69,7 @@ async function sendUserEvent(user: User, eventName: string) {
             <p>Dear ${name},</p>
             <p>Your password has been reset successfully. You can now log in using your new password.</p>
             <br>
-            <a href="https://oc.golu.codes/login" style="display: inline-block; padding: 12px 20px; font-size: 16px; color: #fff; background-color: #4CAF50; text-decoration: none; border-radius: 5px;">Login Now</a>
+            <a href="https://oc.9854.me/login" style="display: inline-block; padding: 12px 20px; font-size: 16px; color: #fff; background-color: #4CAF50; text-decoration: none; border-radius: 5px;">Login Now</a>
             <br><br>
             <p>If you did not reset your password, please contact support immediately.</p>
             <p>Best Regards,</p>
@@ -122,7 +122,7 @@ async function sendOrderEvent(order: OrderWithRelations, eventName: string) {
             <p><strong>Description:</strong> ${productDescription}</p>
             <p><strong>Quantity:</strong> ${productQuantity}</p>
             <br>
-            <a href="https://oc.golu.codes/orders/${order.id}" style="display: inline-block; padding: 12px 20px; font-size: 16px; color: #fff; background-color: #4CAF50; text-decoration: none; border-radius: 5px;">Track Order</a>
+            <a href="https://oc.9854.me/orders/${order.id}" style="display: inline-block; padding: 12px 20px; font-size: 16px; color: #fff; background-color: #4CAF50; text-decoration: none; border-radius: 5px;">Track Order</a>
             <br><br>
             <p>Best Regards,</p>
             <p><strong>Gaurav Bhatt</strong></p>
@@ -202,7 +202,7 @@ async function sendProblemEvent(problem: ReportedProblemWithRelations, eventName
           <p><strong>Description:</strong> ${description}</p>
           <p><strong>Status:</strong> ${status}</p>
           <br>
-          <a href="https://oc.golu.codes/orders/${orderId}/issues" style="display: inline-block; padding: 12px 20px; font-size: 16px; color: #fff; background-color: ${eventName === "problem.reported" ? "#FF5722" : "#4CAF50"}; text-decoration: none; border-radius: 5px;">View Issue</a>
+          <a href="https://oc.9854.me/orders/${orderId}/issues" style="display: inline-block; padding: 12px 20px; font-size: 16px; color: #fff; background-color: ${eventName === "problem.reported" ? "#FF5722" : "#4CAF50"}; text-decoration: none; border-radius: 5px;">View Issue</a>
           <br><br>
           <p>We will update you on further progress.</p>
           <p>Best Regards,</p>

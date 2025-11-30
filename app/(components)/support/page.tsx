@@ -21,7 +21,7 @@ export default function SupportPage() {
       <Card className="w-full max-w-2xl shadow-lg rounded-2xl bg-white p-6">
         <div className="flex flex-col items-center">
           <Image
-            src="https://golu.codes/static/media/HeroImage.d2fd600e58540e8e5da1.jpg"
+            src="https://9854.me/static/media/HeroImage.d2fd600e58540e8e5da1.jpg"
             alt="Gaurav Bhatt"
             width={100}
             height={100}
