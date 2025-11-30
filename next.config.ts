@@ -11,12 +11,12 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "s3.golu.codes",
+        hostname: "s3.9854.me",
         pathname: "/**",
       },
       {
         protocol: "https",
-        hostname: "golu.codes",
+        hostname: "9854.me",
         pathname: "/**",
       },
     ],
