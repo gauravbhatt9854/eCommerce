@@ -3,7 +3,6 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { io, Socket } from "socket.io-client";
 import { useAppState } from "./AppStateProvider";
 
-// Define the context type
 interface SocketContextType {
   socket: Socket | null;
 }
@@ -11,11 +10,9 @@ interface SocketContextType {
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 const SOCKET_SERVER_URL = process.env.NEXT_PUBLIC_CHAT_BACKEND_URL;
 
-// Socket Provider Component
 export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const { user } = useAppState();
-
 
   useEffect(() => {
     if (!SOCKET_SERVER_URL) {
@@ -41,37 +38,15 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         return;
       }
 
-      // Try to get real user location
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
+      // Send dummy location (0,0)
+      newSocket.emit("register", {
+        lat: 0,
+        lng: 0,
+        username: user.fullName || "Guest",
+        profileUrl: user.profileUrl || "fallback-image-url",
+      });
 
-          newSocket.emit("register", {
-            lat: latitude,
-            lng: longitude,
-            username: user.fullName || "Guest",
-            profileUrl: user.profileUrl || "fallback-image-url",
-          });
-
-          console.log("📤 Registered with real location:", latitude, longitude);
-        },
-        (error) => {
-          console.warn("⚠️ Location denied or failed, sending dummy location.");
-
-          // Fallback dummy location (e.g., India Gate, Delhi)
-          const dummyLat = 28.6129;
-          const dummyLng = 77.2295;
-
-          newSocket.emit("register", {
-            lat: dummyLat,
-            lng: dummyLng,
-            username: user.fullName || "Guest",
-            profileUrl: user.profileUrl || "fallback-image-url",
-          });
-
-          console.log("📤 Registered with dummy location:", dummyLat, dummyLng);
-        }
-      );
+      console.log("📤 Registered with dummy location: 0,0");
     });
 
     newSocket.on("disconnect", () => {
@@ -86,7 +61,6 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   return <SocketContext.Provider value={{ socket }}>{children}</SocketContext.Provider>;
 };
 
-// Custom Hook to Use Socket
 export const useSocket = (): SocketContextType => {
   const context = useContext(SocketContext);
   if (!context) {

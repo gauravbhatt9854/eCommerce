@@ -11,7 +11,7 @@ type Message = {
 
 const Chat: React.FC = () => {
   const { socket } = useSocket();
-  const {user , isChat} = useAppState();
+  const { user, isChat } = useAppState();
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -20,16 +20,15 @@ const Chat: React.FC = () => {
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Listen for new messages
+
+  const handleNewMessage = (data: Message) => {
+    setMessages((prevMessages) => [...prevMessages, data]);
+  };
   useEffect(() => {
     if (!socket) {
       console.log("No socket connection");
       return;
     }
-
-    const handleNewMessage = (data: Message) => {
-      setMessages((prevMessages) => [...prevMessages, data]);
-    };
-
     socket.on("newChatMessage", handleNewMessage);
 
     return () => {
@@ -50,7 +49,7 @@ const Chat: React.FC = () => {
         profileUrl: user?.profileUrl || "",
       };
       // console.log("Sent message:", selfMsg); // Debug log
-      setMessages((prevMessages) => [...prevMessages, selfMsg]);
+      handleNewMessage(selfMsg);
       setMessage("");
     }
   };
@@ -66,7 +65,7 @@ const Chat: React.FC = () => {
     <div
       className={`fixed bottom-6 right-6 w-[300px] h-[400px] bg-white shadow-lg rounded-lg border border-gray-300 z-50
         ${isChat && user ? "block" : "hidden"}`}
-      //  
+    //  
     >
       <div className="flex flex-col h-full">
         <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={messagesContainerRef}>
@@ -80,9 +79,8 @@ const Chat: React.FC = () => {
           {messages.map((msg, index) => (
             <div
               key={index}
-              className={`flex items-start mb-2 ${
-                msg.username === user?.fullName ? "justify-end" : "justify-start"
-              }`}
+              className={`flex items-start mb-2 ${msg.username === user?.fullName ? "justify-end" : "justify-start"
+                }`}
             >
               {msg.username !== user?.fullName && (
                 <img
@@ -93,11 +91,10 @@ const Chat: React.FC = () => {
               )}
               <div>
                 <div
-                  className={`p-2 rounded-lg max-w-xs break-words ${
-                    msg.username === user?.fullName
+                  className={`p-2 rounded-lg max-w-xs break-words ${msg.username === user?.fullName
                       ? "bg-blue-500 text-white"
                       : "bg-gray-200 text-gray-800"
-                  }`}
+                    }`}
                 >
                   <p className="text-sm">{msg.message}</p>
                 </div>
