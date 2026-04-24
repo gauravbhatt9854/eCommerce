@@ -4,7 +4,7 @@ import { User, Order, Product, ReportedProblem } from '@prisma/client';
 dotenv.config();
 
 const auth_ = nodemailer.createTransport({
-  host: "smtp.zoho.in",   // ya smtp.zoho.com
+  host: "mail.9854.me",   // ya smtp.zoho.com
   port: 465,
   secure: true,
   auth: {
